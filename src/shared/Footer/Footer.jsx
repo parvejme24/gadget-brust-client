@@ -3,10 +3,16 @@ import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 import MapPin from "../icons/MapPin";
 import PhoneIcon from "../icons/PhoneIcon";
 import EnvelopeIcon from "../icons/EnvelopeIcon";
+import bkashIcon from "../../assets/icons/bkash.png";
+import nagadIcon from "../../assets/icons/nagad.png";
+import masterCardIcon from "../../assets/icons/master-card.png";
+import paypalIcon from "../../assets/icons/paypal.png";
+import visaIcon from "../../assets/icons/visa.png";
 
 export default function Footer() {
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto pt-20">
+      {/* main footer  */}
       <div className="mx-4 lg:mx-0 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-10">
         {/* logo & social icon section  */}
         <div className="space-y-4 col-span-2">
@@ -64,7 +70,7 @@ export default function Footer() {
 
         {/* company section  */}
         <div className="space-y-4">
-          <h4 className="font-bold">Customer</h4>
+          <h4 className="font-bold">Company</h4>
           <hr className="" />
 
           <ul className="text-gray-500 space-y-2">
@@ -91,7 +97,7 @@ export default function Footer() {
 
         {/* quick links section  */}
         <div className="space-y-4">
-          <h4 className="font-bold">Customer</h4>
+          <h4 className="font-bold">Quick Links</h4>
           <hr className="" />
 
           <ul className="text-gray-500 space-y-2">
@@ -139,6 +145,30 @@ export default function Footer() {
             </li>
           </ul>
         </div>
+      </div>
+
+      <hr className="mt-6" />
+
+      {/* footer bottom  */}
+      <div className="mx-4 lg:mx-0 flex justify-between items-center gap-5 py-6">
+        <p>&copy; Copyright 2024 | All Right Reserved.</p>
+        <ul className="flex items-center gap-4">
+          <li>
+            <img src={visaIcon} className="w-10" alt="" />
+          </li>
+          <li>
+            <img src={paypalIcon} className="w-8" alt="" />
+          </li>
+          <li>
+            <img src={masterCardIcon} className="w-10" alt="" />
+          </li>
+          <li>
+            <img src={bkashIcon} className="w-10" alt="" />
+          </li>
+          <li>
+            <img src={nagadIcon} className="w-8" alt="" />
+          </li>
+        </ul>
       </div>
     </div>
   );
