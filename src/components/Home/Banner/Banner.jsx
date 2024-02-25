@@ -61,10 +61,10 @@ export default function Banner() {
                 <h4 className="uppercase text-lg md:text-xl text-red-600">
                   {item.subtitle}
                 </h4>
-                <h2 className="text-4xl capitalize font-semibold hidden md:flex">
+                <h2 className="text-4xl textShadow capitalize font-semibold hidden md:flex">
                   {item.title}
                 </h2>
-                <button className="bg-[#FF6E06] text-white px-4 py-2 rounded-md">
+                <button className="secondaryBG shadow-md text-white px-4 py-2 rounded-md">
                   Buy Now
                 </button>
               </div>
