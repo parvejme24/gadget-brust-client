@@ -1,0 +1,15 @@
+.px-6 {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.max-w-\[1240px\] {
+  max-width: 1240px !important;
+}
+
+.backdrop-saturate-150 {
+  background-color: transparent !important;
+}
+.bg-background\/70 {
+  background-color: transparent !important;
+}
