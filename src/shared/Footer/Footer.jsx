@@ -1,114 +1,144 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
+import MapPin from "../icons/MapPin";
+import PhoneIcon from "../icons/PhoneIcon";
+import EnvelopeIcon from "../icons/EnvelopeIcon";
 
 export default function Footer() {
   return (
     <div className="container mx-auto">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-        {/* customer  */}
-        <div>
-          <h3 className="font-bold text-xl mb-3">Customer</h3>
-          <ul>
+      <div className="mx-4 lg:mx-0 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-10">
+        {/* logo & social icon section  */}
+        <div className="space-y-4 col-span-2">
+          <h2>GadgetHub</h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dolorem
+            architecto reiciendis voluptas provident tempore eveniet quam dicta
+            voluptate voluptatibus laboriosam.
+          </p>
+          <ul className="flex gap-3 items-center text-2xl">
             <li>
-              <Link>My Account</Link>
+              <a href="">
+                <FaFacebook />
+              </a>
             </li>
             <li>
-              <Link>Track Your Order</Link>
+              <a href="">
+                <FaInstagram />
+              </a>
             </li>
             <li>
-              <Link>Customer Service</Link>
-            </li>
-            <li>
-              <Link>Team of Use</Link>
-            </li>
-            <li>
-              <Link>Affiliate</Link>
-            </li>
-            <li>
-              <Link>Help & Support</Link>
-            </li>
-          </ul>
-        </div>
-
-        {/* company  */}
-        <div>
-          <h3 className="font-bold text-xl mb-3">Company</h3>
-          <ul>
-            <li>
-              <Link>About Us</Link>
-            </li>
-            <li>
-              <Link>Search Teams</Link>
-            </li>
-            <li>
-              <Link>Shipping Guide</Link>
-            </li>
-            <li>
-              <Link>Site Map</Link>
-            </li>
-            <li>
-              <Link>Carrers</Link>
-            </li>
-            <li>
-              <Link>Contact Us</Link>
+              <a href="">
+                <FaYoutube />
+              </a>
             </li>
           </ul>
         </div>
 
-        {/* quick link  */}
-        <div>
-          <h3 className="font-bold text-xl mb-3">Quick Links</h3>
-          <ul>
+        {/* customer section  */}
+        <div className="space-y-4">
+          <h4 className="font-bold">Customer</h4>
+          <hr className="" />
+
+          <ul className="text-gray-500 space-y-2">
             <li>
-              <Link>Laptops & Computers</Link>
+              <a href="#">My Account</a>
             </li>
             <li>
-              <Link>Audio & Sounds</Link>
+              <a href="">Track Your Order</a>
             </li>
             <li>
-              <Link>Smartphone & Tablet</Link>
+              <a href="">Customer Service</a>
             </li>
             <li>
-              <Link>Printers & Ink</Link>
+              <a href="">Term Of Use</a>
             </li>
             <li>
-              <Link>Office Suppliers</Link>
+              <a href="">Affiliate</a>
             </li>
             <li>
-              <Link>Cameras & Photography</Link>
+              <a href="">Help & Support</a>
             </li>
           </ul>
         </div>
 
-        {/* contact us  */}
-        <div>
-          <h3 className="font-bold text-xl mb-3">Contact Us</h3>
-          <ul className="space-y-2">
+        {/* company section  */}
+        <div className="space-y-4">
+          <h4 className="font-bold">Customer</h4>
+          <hr className="" />
+
+          <ul className="text-gray-500 space-y-2">
             <li>
+              <a href="#">My Account</a>
+            </li>
+            <li>
+              <a href="">Track Your Order</a>
+            </li>
+            <li>
+              <a href="">Customer Service</a>
+            </li>
+            <li>
+              <a href="">Term Of Use</a>
+            </li>
+            <li>
+              <a href="">Affiliate</a>
+            </li>
+            <li>
+              <a href="">Help & Support</a>
+            </li>
+          </ul>
+        </div>
+
+        {/* quick links section  */}
+        <div className="space-y-4">
+          <h4 className="font-bold">Customer</h4>
+          <hr className="" />
+
+          <ul className="text-gray-500 space-y-2">
+            <li>
+              <a href="#">My Account</a>
+            </li>
+            <li>
+              <a href="">Track Your Order</a>
+            </li>
+            <li>
+              <a href="">Customer Service</a>
+            </li>
+            <li>
+              <a href="">Term Of Use</a>
+            </li>
+            <li>
+              <a href="">Affiliate</a>
+            </li>
+            <li>
+              <a href="">Help & Support</a>
+            </li>
+          </ul>
+        </div>
+
+        {/* contact us section  */}
+        <div className="space-y-4 col-span-2">
+          <h4 className="font-bold">Contact Us</h4>
+          <hr className="" />
+
+          <ul className="space-y-2 text-gray-600">
+            <li className="flex items-center gap-2">
+              <MapPin />
               <p>
-                No.1110 Bpmofamt Street. Siote 459 NY, New York City, United
+                11/A, Bonifant Street, Suite 459 NY, New York City, United
                 Stated
               </p>
             </li>
-            <li>
-              <Link>Call: +880 12345678</Link>
+            <li className="flex items-center gap-2">
+              <PhoneIcon />
+              <p>01234567890 </p>
             </li>
-            <li>
-              <Link>Email: support@gmail.com</Link>
-            </li>
-            <li>
-              <Link>Opening: 9.00am - 9.30pm, Close Friday</Link>
+            <li className="flex items-center gap-2">
+              <EnvelopeIcon />
+              <p>logotech@xyz.com</p>
             </li>
           </ul>
         </div>
-      </div>
-
-      <hr className="my-6" />
-
-      {/* bootom footer  */}
-      <div className="flex justify-between items-center">
-        <p>&copy; 2024 GadgetHub. All Rights Reserved</p>
-        <p>Visa</p>
       </div>
     </div>
   );
