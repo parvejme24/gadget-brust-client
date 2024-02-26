@@ -1,41 +1,52 @@
-import { Button, Input } from "@nextui-org/react";
 import React from "react";
 import SearchIcon from "../icons/SearchIcon";
-import LoveIcon from "../icons/LoveIcon";
-import CartIcon from "../icons/CartIcon";
-import { Link } from "react-router-dom";
-import NavItems from "./NavItems";
+import {
+  Dropdown,
+  Link,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Button,
+} from "@nextui-org/react";
 
 export default function Navbar() {
   return (
-    <div>
-      <div className="container mx-auto grid grid-cols-12 items-center gap-5 py-4">
-        <div className="col-span-3">
-          <h2 className="font-semibold">GadgetHub</h2>
+    <div className="container mx-auto">
+      <h3>Logo</h3>
+
+      <div className="flex items-center">
+        <div className="">
+          {/* <select name="Category" className="secondaryBG p-2">
+            <option value="">All</option>
+            <option value="">Laptop</option>
+            <option value="">Laptop</option>
+            <option value="">Laptop</option>
+            <option value="">Laptop</option>
+          </select> */}
+          <Dropdown className="rounded-none" backdrop="blur">
+            <DropdownTrigger>
+              <Button variant="bordered">All</Button>
+            </DropdownTrigger>
+            <DropdownMenu variant="faded" aria-label="Static Actions">
+              <DropdownItem key="new">New file</DropdownItem>
+              <DropdownItem key="copy">Copy link</DropdownItem>
+              <DropdownItem key="edit">Edit file</DropdownItem>
+              <DropdownItem key="delete" className="text-danger" color="danger">
+                Delete file
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
         </div>
-        <div className="col-span-6">
-          <Input
+        <div>
+          <input
             type="text"
-            placeholder="Search for shop..."
-            labelPlacement="outside"
-            className="rounded-full"
-            startContent={
-              <SearchIcon className="w-5 text-default-400 pointer-events-none flex-shrink-0" />
-            }
+            name="search"
+            placeholder="Search by shop..."
+            className="px-4 py-2 border"
           />
         </div>
-        <div className="col-span-3 flex justify-end items-center gap-4">
-          <span className="border p-1 border-black">
-            <LoveIcon />
-          </span>
-          <span className="border p-1 border-black">
-            <CartIcon />
-          </span>
-          
-        </div>
+        <SearchIcon className="w-10 p-2 secondaryBG" />
       </div>
-
-      <NavItems />
     </div>
   );
 }

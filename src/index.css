@@ -18,7 +18,7 @@
 }
 
 .swiper-pagination-bullet-active {
-  background: black !important;
+  background: #5bbb97 !important;
 }
 
 .primaryBG {
@@ -37,4 +37,8 @@
 
 .textShadow {
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.rounded-medium {
+  border-radius: 0 !important;
 }
