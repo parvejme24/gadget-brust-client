@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import login from "../../assets/login.png";
 import { Link } from "react-router-dom";
 import googleIcon from "../../assets/icons/google.png";
+import EyeIcon from "../../shared/icons/EyeIcon";
+import EyeSlashIcon from "../../shared/icons/EyeSlashIcon";
 
 function Register() {
+  const [showPassword, setShowPassword] = useState(true);
   const handleSignUp = () => {};
   const handleGoogleLogin = () => {};
   return (
@@ -23,7 +26,7 @@ function Register() {
             </button>
             <div className="flex items-center justify-center gap-5 pb-5">
               <hr className="bg-[#343A40] max-w-[20%] w-[20%]" />
-              <p>Or Login with E-mail</p>
+              <p>Or Register with E-mail</p>
               <hr className="bg-[#343A40] max-w-[20%] w-[20%]" />
             </div>
           </div>
@@ -51,20 +54,29 @@ function Register() {
                 Email Address
               </label>
             </div>
-            <div class="relative float-label-input">
-              <input
-                type="password"
-                name="password"
-                placeholder=" "
-                className="block bg-white w-full  focus:outline-none focus:shadow-outline border border-green-500 rounded-md py-3 px-4 appearance-none leading-normal"
-              />
-              <label class="absolute top-3 left-0 text-green-500 pointer-events-none transition duration-200 ease-in-outbg-white px-4">
-                Password
-              </label>
+            <div className="flex items-center relative">
+              <div class="relative float-label-input w-full">
+                <input
+                  type={showPassword ? "password" : "text"}
+                  name="password"
+                  placeholder=" "
+                  className="block bg-white w-full  focus:outline-none focus:shadow-outline border border-green-500 rounded-md py-3 px-4 appearance-none leading-normal"
+                />
+                <label class="absolute top-3 left-0 text-green-500 pointer-events-none transition duration-200 ease-in-outbg-white px-4">
+                  Password
+                </label>
+              </div>
+              <p
+                onClick={() => setShowPassword(!showPassword)}
+                className="cursor-pointer absolute right-4"
+              >
+                <small>{showPassword ? <EyeIcon /> : <EyeSlashIcon />}</small>
+              </p>
             </div>
+
             <input
               type="submit"
-              value="Sign Up"
+              value="Register"
               className="w-full secondaryBG hover:bg-[#4b997c] py-3 text-white rounded-md transition duration-200 ease-in-outbg-white"
             />
 
