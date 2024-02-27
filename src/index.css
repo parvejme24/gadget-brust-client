@@ -35,10 +35,28 @@
   background-color: #5bbb97;
 }
 
+.secondaryText {
+  color: #5bbb97;
+}
+
 .textShadow {
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
 }
 
 .rounded-medium {
   border-radius: 0 !important;
+}
+
+.buttonShadow {
+  box-shadow: 0px 0px 3px 0px #5bbb97;
+}
+
+.float-label-input {
+  margin: 15px 0;
+}
+
+.float-label-input:focus-within label,
+.float-label-input input:not(:placeholder-shown) + label {
+  transform: translateY(-1.5rem) scale(0.75);
+  background-color: white;
 }
