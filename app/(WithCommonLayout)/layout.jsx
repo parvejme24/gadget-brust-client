@@ -8,8 +8,10 @@ export default function Layout({ children }) {
   return (
     <div>
       <TopNav />
-      <Navbar />
-      <NavItemsBar />
+      <div className="sticky top-0 z-50">
+        <Navbar />
+        <NavItemsBar />
+      </div>
       {children}
       <Footer />
     </div>
