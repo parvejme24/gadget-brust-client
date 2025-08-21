@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
 import React from "react";
 import {
   FaEnvelope,
@@ -11,6 +12,11 @@ import {
   FaBriefcase,
   FaBuilding,
   FaComments,
+  FaFacebook,
+  FaTwitter,
+  FaInstagram,
+  FaLinkedin,
+  FaWhatsapp,
 } from "react-icons/fa";
 
 export default function ContactPage() {
@@ -35,7 +41,7 @@ export default function ContactPage() {
           {/* Left Side - Contact Information */}
           <div className="space-y-8">
             {/* Get in Touch Section */}
-            <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+            <div>
               <h2 className="text-3xl font-bold text-gray-800 mb-6">
                 Get in Touch
               </h2>
@@ -97,6 +103,58 @@ export default function ContactPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Social Media Follow Buttons */}
+              <div className="mt-8">
+                <h3 className="text-xl font-bold text-gray-800 mb-4">
+                  Follow Us
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Stay connected with us on social media for the latest updates and news.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href="#"
+                    className="flex items-center justify-center w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-300 transform hover:scale-110"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaFacebook className="text-xl" />
+                  </Link>
+                  <Link
+                    href="#"
+                    className="flex items-center justify-center w-12 h-12 bg-blue-400 hover:bg-blue-500 text-white rounded-full transition-all duration-300 transform hover:scale-110"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaTwitter className="text-xl" />
+                  </Link>
+                  <Link
+                    href="#"
+                    className="flex items-center justify-center w-12 h-12 bg-pink-600 hover:bg-pink-700 text-white rounded-full transition-all duration-300 transform hover:scale-110"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaInstagram className="text-xl" />
+                  </Link>
+                  <Link
+                    href="#"
+                    className="flex items-center justify-center w-12 h-12 bg-blue-700 hover:bg-blue-800 text-white rounded-full transition-all duration-300 transform hover:scale-110"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaLinkedin className="text-xl" />
+                  </Link>
+                  <Link
+                    href="#"
+                    className="flex items-center justify-center w-12 h-12 bg-green-500 hover:bg-green-600 text-white rounded-full transition-all duration-300 transform hover:scale-110"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <FaWhatsapp className="text-xl" />
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -105,7 +163,6 @@ export default function ContactPage() {
             <h2 className="text-3xl font-bold text-gray-800 mb-6">
               Contact Form
             </h2>
-
             <form className="space-y-4">
               <div>
                 <label htmlFor="name">Name</label>
@@ -114,6 +171,7 @@ export default function ContactPage() {
                   id="name"
                   name="name"
                   placeholder="Enter your name"
+                  className="h-12 text-base"
                 />
               </div>
               <div>
@@ -123,6 +181,7 @@ export default function ContactPage() {
                   id="email"
                   name="email"
                   placeholder="Enter your email"
+                  className="h-12 text-base"
                 />
               </div>
               <div>
@@ -132,6 +191,7 @@ export default function ContactPage() {
                   id="phone"
                   name="phone"
                   placeholder="Enter your phone"
+                  className="h-12 text-base"
                 />
               </div>
               <div>
@@ -141,6 +201,7 @@ export default function ContactPage() {
                   id="companyName"
                   name="companyName"
                   placeholder="Enter your company name"
+                  className="h-12 text-base"
                 />
               </div>
               <div>
@@ -149,10 +210,16 @@ export default function ContactPage() {
                   id="message"
                   name="message"
                   placeholder="Enter your message"
+                  className="h-32 text-base resize-none"
                 />
               </div>
 
-              <Button variant="ghost" className="w-full bg-[#38AD81] hover:bg-[#38AD81]/80 text-white cursor-pointer">Submit</Button>
+              <Button
+                variant="ghost"
+                className="w-full bg-[#38AD81] hover:bg-[#38AD81]/80 text-white cursor-pointer h-12 text-base"
+              >
+                Submit
+              </Button>
             </form>
           </div>
         </div>
