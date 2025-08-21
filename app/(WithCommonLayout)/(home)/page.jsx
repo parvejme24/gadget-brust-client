@@ -1,5 +1,10 @@
+import Banner from "@/components/Module/Home/Banner/Banner";
 import React from "react";
 
 export default function HomePage() {
-  return <div>HomePage</div>;
+  return (
+    <div>
+      <Banner />
+    </div>
+  );
 }
