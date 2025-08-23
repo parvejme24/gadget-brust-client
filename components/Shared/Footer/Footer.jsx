@@ -126,7 +126,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="text-gray-800 bg-gray-100">
+    <footer className="text-gray-800">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         {/* main footer content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">

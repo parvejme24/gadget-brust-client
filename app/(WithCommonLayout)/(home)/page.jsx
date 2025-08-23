@@ -1,5 +1,6 @@
 import Banner from "@/components/Module/Home/Banner/Banner";
 import Speciality from "@/components/Module/Home/Speciality/Speciality";
+import Newsletter from "@/components/Shared/Newsletter/Newsletter";
 import React from "react";
 
 export default function HomePage() {
@@ -7,6 +8,7 @@ export default function HomePage() {
     <div>
       <Banner />
       <Speciality />
+      <Newsletter />
     </div>
   );
 }
