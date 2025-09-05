@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React from "react";
 
-import gaggetsImage from "@/assets/gaggets.png";
+import gadgetsImage from "@/assets/gadgets1.svg";
 import newsletterBg from "@/assets/newsletter-bg.svg";
 import Image from "next/image";
 
@@ -43,7 +43,7 @@ export default function Newsletter() {
         </div>
 
         <div className="flex justify-end">
-          <Image src={gaggetsImage} alt="gaggets" draggable={false} />
+          <Image src={gadgetsImage} alt="gaggets" draggable={false} />
         </div>
       </div>
     </div>
