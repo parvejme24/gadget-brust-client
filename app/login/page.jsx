@@ -2,18 +2,26 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import gadgetsImage from "@/assets/gadgets.svg";
+import { useLogin } from "@/lib/hooks/useAuth";
+import SuccessMessage from "@/components/ui/success-message";
+import Swal from "sweetalert2";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const loginMutation = useLogin();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,23 +33,61 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setError("");
+    setSuccess("");
 
-    try {
-      // TODO: Implement login logic here
-      console.log("Login data:", formData);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (error) {
-      console.error("Login failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    // using react query mutation
+    loginMutation.mutate(formData, {
+      onSuccess: (data) => {
+        console.log("Login successful:", data);
+
+        // show sweet alert success message
+        Swal.fire({
+          title: "Welcome Back!",
+          text: "You have successfully logged in.",
+          icon: "success",
+          confirmButtonColor: "#38AD81",
+          confirmButtonText: "Continue to Dashboard",
+          timer: 3000,
+          timerProgressBar: true,
+          showConfirmButton: true,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+        }).then((result) => {
+          if (
+            result.isConfirmed ||
+            result.dismiss === Swal.DismissReason.timer
+          ) {
+            router.push("/dashboard");
+          }
+        });
+      },
+      onError: (error) => {
+        console.error("Login failed:", error);
+
+        // show sweet alert error message
+        Swal.fire({
+          title: "Login Failed",
+          text: error.message || "Invalid email or password. Please try again.",
+          icon: "error",
+          confirmButtonColor: "#dc2626",
+          confirmButtonText: "Try Again",
+          showConfirmButton: true,
+        });
+      },
+    });
   };
 
   const handleGoogleLogin = () => {
-    // TODO: Implement Google OAuth
-    console.log("Google login clicked");
+    // show sweet alert for google login coming soon
+    Swal.fire({
+      title: "Google Login",
+      text: "Google authentication is coming soon! Please use email and password for now.",
+      icon: "info",
+      confirmButtonColor: "#38AD81",
+      confirmButtonText: "Got it",
+      showConfirmButton: true,
+    });
   };
 
   return (
@@ -80,6 +126,18 @@ export default function LoginPage() {
               </span>
             </div>
           </div>
+
+          {/* Success Message */}
+          {success && (
+            <SuccessMessage message={success} onClose={() => setSuccess("")} />
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600 text-center">{error}</p>
+            </div>
+          )}
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -147,10 +205,10 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full cursor-pointer bg-[#38AD81] hover:bg-[#38AD81]/90 text-white font-medium h-10 text-sm sm:text-base"
+              disabled={loginMutation.isPending}
+              className="w-full cursor-pointer bg-[#38AD81] hover:bg-[#38AD81]/90 text-white font-medium h-10 text-sm sm:text-base disabled:opacity-50"
             >
-              {isLoading ? "Signing in..." : "Sign in"}
+              {loginMutation.isPending ? "Signing in..." : "Sign in"}
             </Button>
           </form>
 

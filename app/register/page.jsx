@@ -2,19 +2,27 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import gadgetsImage from "@/assets/gadgets.svg";
+import { useRegister } from "@/lib/hooks/useAuth";
+import SuccessMessage from "@/components/ui/success-message";
+import Swal from "sweetalert2";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const registerMutation = useRegister();
+
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     email: "",
     password: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,23 +34,61 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setError("");
+    setSuccess("");
 
-    try {
-      // TODO: Implement registration logic here
-      console.log("Registration data:", formData);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (error) {
-      console.error("Registration failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    // using react query mutation
+    registerMutation.mutate(formData, {
+      onSuccess: (data) => {
+        console.log("Registration successful:", data);
+
+        // show sweet alert success message
+        Swal.fire({
+          title: "Account Created!",
+          text: "Welcome to Gadget Brust! Your account has been created successfully.",
+          icon: "success",
+          confirmButtonColor: "#38AD81",
+          confirmButtonText: "Continue to Dashboard",
+          timer: 4000,
+          timerProgressBar: true,
+          showConfirmButton: true,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+        }).then((result) => {
+          if (
+            result.isConfirmed ||
+            result.dismiss === Swal.DismissReason.timer
+          ) {
+            router.push("/dashboard");
+          }
+        });
+      },
+      onError: (error) => {
+        console.error("Registration failed:", error);
+
+        // show sweet alert error message
+        Swal.fire({
+          title: "Registration Failed",
+          text: error.message || "Unable to create account. Please try again.",
+          icon: "error",
+          confirmButtonColor: "#dc2626",
+          confirmButtonText: "Try Again",
+          showConfirmButton: true,
+        });
+      },
+    });
   };
 
   const handleGoogleSignUp = () => {
-    // TODO: Implement Google OAuth
-    console.log("Google sign up clicked");
+    // show sweet alert for google signup coming soon
+    Swal.fire({
+      title: "Google Sign Up",
+      text: "Google authentication is coming soon! Please use email and password for now.",
+      icon: "info",
+      confirmButtonColor: "#38AD81",
+      confirmButtonText: "Got it",
+      showConfirmButton: true,
+    });
   };
 
   return (
@@ -82,20 +128,32 @@ export default function RegisterPage() {
             </div>
           </div>
 
+          {/* Success Message */}
+          {success && (
+            <SuccessMessage message={success} onClose={() => setSuccess("")} />
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-600 text-center">{error}</p>
+            </div>
+          )}
+
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label
-                htmlFor="name"
+                htmlFor="fullName"
                 className="text-sm font-medium text-gray-700"
               >
                 Full Name
               </label>
               <Input
                 type="text"
-                id="name"
-                name="name"
-                value={formData.name}
+                id="fullName"
+                name="fullName"
+                value={formData.fullName}
                 onChange={handleInputChange}
                 placeholder="Enter your full name"
                 required
@@ -158,10 +216,10 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              disabled={isLoading}
-              className="w-full cursor-pointer bg-[#38AD81] hover:bg-[#38AD81]/90 text-white font-medium h-10 text-sm sm:text-base"
+              disabled={registerMutation.isPending}
+              className="w-full cursor-pointer bg-[#38AD81] hover:bg-[#38AD81]/90 text-white font-medium h-10 text-sm sm:text-base disabled:opacity-50"
             >
-              {isLoading ? "Creating Account..." : "Sign up"}
+              {registerMutation.isPending ? "Creating Account..." : "Sign up"}
             </Button>
           </form>
 
