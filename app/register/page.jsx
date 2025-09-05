@@ -8,11 +8,14 @@ import { Input } from "@/components/ui/input";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import gadgetsImage from "@/assets/gadgets.svg";
 import { useRegister } from "@/lib/hooks/useAuth";
+import { useAppDispatch } from "@/lib/hooks/redux";
+import { setUser } from "@/lib/store/slices/authSlice";
 import SuccessMessage from "@/components/ui/success-message";
 import Swal from "sweetalert2";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const registerMutation = useRegister();
 
   const [formData, setFormData] = useState({
@@ -39,8 +42,28 @@ export default function RegisterPage() {
 
     // using react query mutation
     registerMutation.mutate(formData, {
-      onSuccess: (data) => {
-        console.log("Registration successful:", data);
+      onSuccess: (response) => {
+        console.log("Registration successful:", response);
+
+        // Store user data and tokens in localStorage
+        if (response.data) {
+          const { user, token, refreshToken } = response.data;
+          
+          // Store tokens
+          if (token) {
+            localStorage.setItem('accessToken', token);
+          }
+          if (refreshToken) {
+            localStorage.setItem('refreshToken', refreshToken);
+          }
+          
+          // Store user data
+          if (user) {
+            localStorage.setItem('userData', JSON.stringify(user));
+            // dispatch user data to Redux store
+            dispatch(setUser(user));
+          }
+        }
 
         // show sweet alert success message
         Swal.fire({

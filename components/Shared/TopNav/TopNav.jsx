@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { FaGlobe, FaDollarSign } from "react-icons/fa";
+import { FaGlobe, FaDollarSign, FaUser, FaSignOutAlt } from "react-icons/fa";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import {
   DropdownMenu,
@@ -10,8 +10,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAuthProfile, useLogout } from "@/lib/hooks/useAuth";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks/redux";
+import { logoutUser, setUser } from "@/lib/store/slices/authSlice";
+import Swal from "sweetalert2";
 
 export default function TopNav() {
+  // Redux state and dispatch
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+
+  // React Query hooks
+  const logoutMutation = useLogout();
+
+  // Check if user has token in localStorage (for initial load)
+  const [hasToken, setHasToken] = useState(false);
+  const [storedUser, setStoredUser] = useState(null);
+
   // define arrays first before using them in useState
   const languages = [
     { code: "en", name: "English", flag: "🇺🇸" },
@@ -60,10 +75,61 @@ export default function TopNav() {
     console.log(`Currency changed to: ${currency.name} (${currency.code})`);
   };
 
-  // load saved preferences on component mount
+  // logout handler
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Logout",
+      text: "Are you sure you want to logout?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#38AD81",
+      cancelButtonColor: "#dc2626",
+      confirmButtonText: "Yes, Logout",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // using react query mutation
+        logoutMutation.mutate(undefined, {
+          onSuccess: () => {
+            // Clear all stored data
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("userData");
+
+            // show success message
+            Swal.fire({
+              title: "Logged Out",
+              text: "You have been successfully logged out.",
+              icon: "success",
+              confirmButtonColor: "#38AD81",
+              confirmButtonText: "OK",
+              timer: 2000,
+              timerProgressBar: true,
+            });
+            // redirect to home page
+            window.location.href = "/";
+          },
+          onError: (error) => {
+            console.error("Logout failed:", error);
+            Swal.fire({
+              title: "Logout Failed",
+              text: "Unable to logout. Please try again.",
+              icon: "error",
+              confirmButtonColor: "#dc2626",
+              confirmButtonText: "OK",
+            });
+          },
+        });
+      }
+    });
+  };
+
+  // load saved preferences and check authentication on component mount
   useEffect(() => {
     const savedLanguage = localStorage.getItem("selectedLanguage");
     const savedCurrency = localStorage.getItem("selectedCurrency");
+    const token = localStorage.getItem("accessToken");
+    const userData = localStorage.getItem("userData");
 
     if (savedLanguage) {
       const language = JSON.parse(savedLanguage);
@@ -75,27 +141,62 @@ export default function TopNav() {
       const currency = JSON.parse(savedCurrency);
       setSelectedCurrency(currency);
     }
-  }, []);
+
+    // check if user has token and load user data
+    setHasToken(!!token);
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setStoredUser(parsedUser);
+        // If user is not in Redux store but exists in localStorage, dispatch it
+        if (!isAuthenticated && parsedUser) {
+          dispatch(setUser(parsedUser));
+        }
+      } catch (error) {
+        console.error("Error parsing user data from localStorage:", error);
+        localStorage.removeItem("userData");
+      }
+    }
+  }, [dispatch, isAuthenticated]);
 
   return (
     <div className="bg-[#F7F8FA] border-b border-gray-200">
       <div className="container mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between py-2 sm:py-3">
-          {/* left - auth links */}
+          {/* left - auth links or user dropdown */}
           <div className="flex items-center gap-1 text-sm text-gray-600">
-            <Link
-              href="/login"
-              className="hover:text-[#38AD81] transition-colors duration-200"
-            >
-              Login
-            </Link>
-            /
-            <Link
-              href="/register"
-              className="hover:text-[#38AD81] transition-colors duration-200"
-            >
-              Register
-            </Link>
+            {isAuthenticated || hasToken ? (
+              // User dropdown when logged in
+              <div className="flex items-center gap-2">
+                <p>
+                  Welcome, <span className="font-medium">{user.fullName}</span>
+                </p>{" "}
+                |
+                <button
+                  onClick={handleLogout}
+                  className="text-red-400 hover:text-red-600 duration-300 cursor-pointer font-bold border px-2.5 py-1.5 bg-red-50 rounded-sm"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              // Login/Register links when not logged in
+              <>
+                <Link
+                  href="/login"
+                  className="hover:text-[#38AD81] transition-colors duration-200"
+                >
+                  Login
+                </Link>
+                /
+                <Link
+                  href="/register"
+                  className="hover:text-[#38AD81] transition-colors duration-200"
+                >
+                  Register
+                </Link>
+              </>
+            )}
           </div>
 
           {/* right side - language and currency dropdowns */}
@@ -110,9 +211,13 @@ export default function TopNav() {
                 >
                   {/* show icon on medium+ devices, show language code on small devices */}
                   <FaGlobe className="hidden sm:block text-[#38AD81] text-xs sm:text-sm" />
-                  <span className="sm:hidden text-[#38AD81] font-medium">{selectedLanguage.code.toUpperCase()}</span>
-                  
-                  <span className="hidden sm:inline ml-1 sm:ml-2">{selectedLanguage.name}</span>
+                  <span className="sm:hidden text-[#38AD81] font-medium">
+                    {selectedLanguage.code.toUpperCase()}
+                  </span>
+
+                  <span className="hidden sm:inline ml-1 sm:ml-2">
+                    {selectedLanguage.name}
+                  </span>
                   <RiArrowDropDownLine className="ml-1 sm:ml-2 text-lg" />
                 </Button>
               </DropdownMenuTrigger>
@@ -140,9 +245,13 @@ export default function TopNav() {
                 >
                   {/* show icon on medium+ devices, show currency code on small devices */}
                   <FaDollarSign className="hidden sm:block text-[#38AD81] text-xs sm:text-sm" />
-                  <span className="sm:hidden text-[#38AD81] font-medium">{selectedCurrency.code}</span>
-                  
-                  <span className="hidden sm:inline ml-1 sm:ml-2">{selectedCurrency.name}</span>
+                  <span className="sm:hidden text-[#38AD81] font-medium">
+                    {selectedCurrency.code}
+                  </span>
+
+                  <span className="hidden sm:inline ml-1 sm:ml-2">
+                    {selectedCurrency.name}
+                  </span>
                   <RiArrowDropDownLine className="ml-1 sm:ml-2 text-lg" />
                 </Button>
               </DropdownMenuTrigger>
