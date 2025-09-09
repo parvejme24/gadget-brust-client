@@ -143,22 +143,6 @@ const FileUpload = ({
           </div>
         )}
       </div>
-
-      {/* Upload Button (Alternative) */}
-      {!preview && (
-        <div className="mt-4 flex justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClick}
-            disabled={disabled}
-            className="cursor-pointer border-[#38AD81] text-[#38AD81] hover:bg-[#38AD81] hover:text-white transition-all duration-200"
-          >
-            <Image className="h-4 w-4 mr-2" />
-            Choose File
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

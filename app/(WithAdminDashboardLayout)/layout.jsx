@@ -2,6 +2,7 @@
 import DashboardTopbar from "@/components/Shared/DashboardTopbar/DashboardTopbar.";
 import Sidebar from "@/components/Shared/Sidebar/Sidebar";
 import React, { useState } from "react";
+import { Toaster } from "@/components/ui/sonner";
 import {
   FaBell,
   FaUser,
@@ -47,6 +48,9 @@ export default function layout({ children }) {
           onClick={toggleSidebar}
         ></div>
       )}
+      
+      {/* Sonner Toaster for notifications */}
+      <Toaster />
     </div>
   );
 }
