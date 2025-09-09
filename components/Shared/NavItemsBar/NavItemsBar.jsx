@@ -3,72 +3,61 @@ import Link from "next/link";
 import React, { useState, useRef, useEffect } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { useAllCategories } from "@/lib/hooks/useCategories";
+import { Loader2 } from "lucide-react";
 
 export default function NavItemsBar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileExpandedItems, setMobileExpandedItems] = useState(new Set());
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
   const mobileMenuRef = useRef(null);
   const menuButtonRef = useRef(null);
 
-  // navigation items with dropdown data
-  const navItems = [
+  // Fetch categories from API
+  const { data: categoriesData, isLoading: categoriesLoading } = useAllCategories();
+
+  // Static navigation items (Home and Contact)
+  const staticNavItems = [
     { name: "Home", href: "/", hasDropdown: false },
-    {
-      name: "Laptop & Computers",
-      href: "/laptops-computers",
-      hasDropdown: true,
-      dropdownItems: [
-        { name: "Laptops", href: "/laptops" },
-        { name: "Desktop Computers", href: "/desktops" },
-        { name: "Gaming PCs", href: "/gaming-pcs" },
-        { name: "Accessories", href: "/computer-accessories" },
-      ],
-    },
-    {
-      name: "Audio & Sound",
-      href: "/audio-sound",
-      hasDropdown: true,
-      dropdownItems: [
-        { name: "Headphones", href: "/headphones" },
-        { name: "Speakers", href: "/speakers" },
-        { name: "Microphones", href: "/microphones" },
-        { name: "Audio Systems", href: "/audio-systems" },
-      ],
-    },
-    {
-      name: "Smartphone & Tablets",
-      href: "/smartphones-tablets",
-      hasDropdown: true,
-      dropdownItems: [
-        { name: "Smartphones", href: "/smartphones" },
-        { name: "Tablets", href: "/tablets" },
-        { name: "Phone Cases", href: "/phone-cases" },
-        { name: "Chargers", href: "/chargers" },
-      ],
-    },
-    {
-      name: "Camera",
-      href: "/cameras",
-      hasDropdown: true,
-      dropdownItems: [
-        { name: "DSLR Cameras", href: "/dslr-cameras" },
-        { name: "Mirrorless Cameras", href: "/mirrorless-cameras" },
-        { name: "Action Cameras", href: "/action-cameras" },
-        { name: "Camera Lenses", href: "/camera-lenses" },
-      ],
-    },
-    {
-      name: "SmartWatch",
-      href: "/smartwatches",
-      hasDropdown: true,
-      dropdownItems: [
-        { name: "Fitness Trackers", href: "/fitness-trackers" },
-        { name: "Smart Watches", href: "/smart-watches" },
-        { name: "Wearable Tech", href: "/wearable-tech" },
-      ],
-    },
     { name: "Contact", href: "/contact", hasDropdown: false },
+  ];
+
+  // Process categories data
+  const categories = categoriesData?.data || [];
+  const visibleCategories = categories.slice(0, 5);
+  const moreCategories = categories.slice(5);
+
+  // Create navigation items from categories
+  const categoryNavItems = visibleCategories.map((category) => ({
+    name: category.categoryName,
+    href: `/category/${category._id}`,
+    hasDropdown: category.subcategories && category.subcategories.length > 0,
+    dropdownItems: category.subcategories?.map((subcategory) => ({
+      name: subcategory,
+      href: `/category/${category._id}?subcategory=${encodeURIComponent(subcategory)}`,
+    })) || [],
+  }));
+
+  // Combine all navigation items
+  const navItems = [
+    staticNavItems[0], // Home
+    ...categoryNavItems,
+    ...(moreCategories.length > 0 ? [{
+      name: "More",
+      href: "#",
+      hasDropdown: true,
+      dropdownItems: moreCategories.map((category) => ({
+        name: category.categoryName,
+        href: `/category/${category._id}`,
+        hasDropdown: category.subcategories && category.subcategories.length > 0,
+        subDropdownItems: category.subcategories?.map((subcategory) => ({
+          name: subcategory,
+          href: `/category/${category._id}?subcategory=${encodeURIComponent(subcategory)}`,
+        })) || [],
+      })),
+    }] : []),
+    staticNavItems[1], // Contact
   ];
 
   // close mobile menu when clicking outside
@@ -123,6 +112,12 @@ export default function NavItemsBar() {
 
   const toggleDropdown = (index) => {
     setActiveDropdown(activeDropdown === index ? null : index);
+    setShowMoreDropdown(false);
+  };
+
+  const toggleMoreDropdown = () => {
+    setShowMoreDropdown(!showMoreDropdown);
+    setActiveDropdown(null);
   };
 
   const toggleMobileItem = (index) => {
@@ -137,6 +132,20 @@ export default function NavItemsBar() {
     });
   };
 
+  // Show loading state
+  if (categoriesLoading) {
+    return (
+      <div className="bg-[#38AD81] relative z-40">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center items-center text-white py-3">
+            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+            <span className="text-sm">Loading navigation...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-[#38AD81] relative z-40">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -145,33 +154,47 @@ export default function NavItemsBar() {
           <ul className="flex justify-center items-center text-white gap-6 py-3">
             {navItems.map((item, index) => (
               <li key={index} className="relative">
-                <button
-                  onClick={() =>
-                    item.hasDropdown ? toggleDropdown(index) : null
-                  }
-                  className="flex items-center gap-1 py-2 px-3 hover:text-gray-200 transition-colors duration-200 font-medium"
-                >
-                  {item.hasDropdown ? (
-                    <>
-                      <span className="whitespace-nowrap">{item.name}</span>
-                      <IoIosArrowDown
-                        className={`text-sm transition-transform duration-200 ${
-                          activeDropdown === index ? "rotate-180" : ""
-                        }`}
-                      />
-                    </>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className="hover:text-gray-200 transition-colors duration-200 whitespace-nowrap"
-                    >
-                      {item.name}
-                    </Link>
-                  )}
-                </button>
+                {item.name === "More" ? (
+                  <button
+                    onClick={toggleMoreDropdown}
+                    className="flex items-center gap-1 py-2 px-3 hover:text-gray-200 transition-colors duration-200 font-medium"
+                  >
+                    <span className="whitespace-nowrap">{item.name}</span>
+                    <IoIosArrowDown
+                      className={`text-sm transition-transform duration-200 ${
+                        showMoreDropdown ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() =>
+                      item.hasDropdown ? toggleDropdown(index) : null
+                    }
+                    className="flex items-center gap-1 py-2 px-3 hover:text-gray-200 transition-colors duration-200 font-medium"
+                  >
+                    {item.hasDropdown ? (
+                      <>
+                        <span className="whitespace-nowrap">{item.name}</span>
+                        <IoIosArrowDown
+                          className={`text-sm transition-transform duration-200 ${
+                            activeDropdown === index ? "rotate-180" : ""
+                          }`}
+                        />
+                      </>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className="hover:text-gray-200 transition-colors duration-200 whitespace-nowrap"
+                      >
+                        {item.name}
+                      </Link>
+                    )}
+                  </button>
+                )}
 
-                {/* dropdown menu */}
-                {item.hasDropdown && activeDropdown === index && (
+                {/* Regular dropdown menu */}
+                {item.hasDropdown && activeDropdown === index && item.name !== "More" && (
                   <div className="absolute top-full left-0 mt-1 w-48 bg-white rounded-lg shadow-lg animate-in slide-in-from-top-2 duration-200 z-50">
                     <div className="py-2">
                       {item.dropdownItems.map((dropdownItem, dropdownIndex) => (
@@ -183,6 +206,42 @@ export default function NavItemsBar() {
                         >
                           {dropdownItem.name}
                         </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* More dropdown menu */}
+                {item.name === "More" && showMoreDropdown && (
+                  <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg animate-in slide-in-from-top-2 duration-200 z-50">
+                    <div className="py-2">
+                      {item.dropdownItems.map((moreItem, moreIndex) => (
+                        <div key={moreIndex} className="relative group">
+                          <Link
+                            href={moreItem.href}
+                            className="block px-4 py-2 text-gray-700 hover:text-[#38AD81] hover:bg-gray-50 transition-colors duration-200 text-sm"
+                            onClick={() => setShowMoreDropdown(false)}
+                          >
+                            {moreItem.name}
+                          </Link>
+                          {/* Sub-dropdown for subcategories */}
+                          {moreItem.hasDropdown && moreItem.subDropdownItems && moreItem.subDropdownItems.length > 0 && (
+                            <div className="absolute left-full top-0 ml-1 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                              <div className="py-2">
+                                {moreItem.subDropdownItems.map((subItem, subIndex) => (
+                                  <Link
+                                    key={subIndex}
+                                    href={subItem.href}
+                                    className="block px-4 py-2 text-gray-700 hover:text-[#38AD81] hover:bg-gray-50 transition-colors duration-200 text-sm"
+                                    onClick={() => setShowMoreDropdown(false)}
+                                  >
+                                    {subItem.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -236,8 +295,43 @@ export default function NavItemsBar() {
                         {/* dropdown items */}
                         {mobileExpandedItems.has(index) && (
                           <div className="bg-gray-50 border-t border-gray-100">
-                            {item.dropdownItems.map(
-                              (dropdownItem, dropdownIndex) => (
+                            {item.name === "More" ? (
+                              // Special handling for More dropdown
+                              item.dropdownItems.map((moreItem, moreIndex) => (
+                                <div key={moreIndex}>
+                                  <Link
+                                    href={moreItem.href}
+                                    className="block py-2.5 px-8 text-gray-600 hover:text-[#38AD81] hover:bg-gray-100 transition-colors duration-200 text-sm font-medium"
+                                    onClick={() => {
+                                      setIsMobileMenuOpen(false);
+                                      setMobileExpandedItems(new Set());
+                                    }}
+                                  >
+                                    {moreItem.name}
+                                  </Link>
+                                  {/* Subcategories for More items */}
+                                  {moreItem.hasDropdown && moreItem.subDropdownItems && moreItem.subDropdownItems.length > 0 && (
+                                    <div className="bg-gray-100">
+                                      {moreItem.subDropdownItems.map((subItem, subIndex) => (
+                                        <Link
+                                          key={subIndex}
+                                          href={subItem.href}
+                                          className="block py-2 px-12 text-gray-500 hover:text-[#38AD81] hover:bg-gray-200 transition-colors duration-200 text-sm"
+                                          onClick={() => {
+                                            setIsMobileMenuOpen(false);
+                                            setMobileExpandedItems(new Set());
+                                          }}
+                                        >
+                                          {subItem.name}
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              ))
+                            ) : (
+                              // Regular dropdown items
+                              item.dropdownItems.map((dropdownItem, dropdownIndex) => (
                                 <Link
                                   key={dropdownIndex}
                                   href={dropdownItem.href}
@@ -249,7 +343,7 @@ export default function NavItemsBar() {
                                 >
                                   {dropdownItem.name}
                                 </Link>
-                              )
+                              ))
                             )}
                           </div>
                         )}
