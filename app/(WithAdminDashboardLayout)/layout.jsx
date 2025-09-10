@@ -3,15 +3,6 @@ import DashboardTopbar from "@/components/Shared/DashboardTopbar/DashboardTopbar
 import Sidebar from "@/components/Shared/Sidebar/Sidebar";
 import React, { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
-import {
-  FaBell,
-  FaUser,
-  FaCog,
-  FaSignOutAlt,
-  FaBars,
-  FaTimes,
-  FaSearch,
-} from "react-icons/fa";
 
 export default function layout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -48,7 +39,7 @@ export default function layout({ children }) {
           onClick={toggleSidebar}
         ></div>
       )}
-      
+
       {/* Sonner Toaster for notifications */}
       <Toaster />
     </div>

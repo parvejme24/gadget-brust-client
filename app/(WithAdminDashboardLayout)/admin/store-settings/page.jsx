@@ -22,14 +22,7 @@ import ContactSettings from "@/components/Module/StoreSettings/ContactSettings";
 import SocialSettings from "@/components/Module/StoreSettings/SocialSettings";
 import SEOSettings from "@/components/Module/StoreSettings/SEOSettings";
 import CurrencySettings from "@/components/Module/StoreSettings/CurrencySettings";
-import {
-  Loader2,
-  Settings,
-  RotateCcw,
-  Save,
-  AlertTriangle,
-  Info,
-} from "lucide-react";
+import { Loader2, Settings, AlertTriangle } from "lucide-react";
 
 export default function StoreSettingsPage() {
   const [activeTab, setActiveTab] = useState("general");
