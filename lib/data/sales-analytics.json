@@ -1,0 +1,334 @@
+{
+  "byCategory": [
+    {
+      "name": "Electronics",
+      "value": 35,
+      "percentage": 35,
+      "revenue": 392000,
+      "orders": 1085,
+      "color": "#38AD81",
+      "icon": "electronics",
+      "trend": "up",
+      "growth": 15.2,
+      "topProducts": [
+        "iPhone 15 Pro",
+        "Samsung Galaxy S24",
+        "MacBook Pro M3",
+        "iPad Air",
+        "Sony WH-1000XM5"
+      ]
+    },
+    {
+      "name": "Accessories",
+      "value": 25,
+      "percentage": 25,
+      "revenue": 280000,
+      "orders": 775,
+      "color": "#0070ba",
+      "icon": "accessories",
+      "trend": "up",
+      "growth": 12.8,
+      "topProducts": [
+        "AirPods Pro",
+        "Magic Mouse",
+        "USB-C Hub",
+        "Wireless Charger",
+        "Screen Protector"
+      ]
+    },
+    {
+      "name": "Gaming",
+      "value": 20,
+      "percentage": 20,
+      "revenue": 224000,
+      "orders": 620,
+      "color": "#28a745",
+      "icon": "gaming",
+      "trend": "up",
+      "growth": 18.5,
+      "topProducts": [
+        "PlayStation 5",
+        "Xbox Series X",
+        "Nintendo Switch",
+        "Gaming Headset",
+        "Gaming Mouse"
+      ]
+    },
+    {
+      "name": "Home & Office",
+      "value": 15,
+      "percentage": 15,
+      "revenue": 168000,
+      "orders": 465,
+      "color": "#ffc107",
+      "icon": "home-office",
+      "trend": "stable",
+      "growth": 5.2,
+      "topProducts": [
+        "Standing Desk",
+        "Ergonomic Chair",
+        "Monitor Stand",
+        "Desk Lamp",
+        "Cable Organizer"
+      ]
+    },
+    {
+      "name": "Mobile",
+      "value": 5,
+      "percentage": 5,
+      "revenue": 56000,
+      "orders": 155,
+      "color": "#6f42c1",
+      "icon": "mobile",
+      "trend": "down",
+      "growth": -2.1,
+      "topProducts": [
+        "iPhone Cases",
+        "Screen Protectors",
+        "Phone Stands",
+        "Car Mounts",
+        "Power Banks"
+      ]
+    }
+  ],
+  "byBrand": [
+    {
+      "name": "Apple",
+      "value": 40,
+      "percentage": 40,
+      "revenue": 450000,
+      "orders": 1250,
+      "color": "#38AD81",
+      "icon": "apple",
+      "trend": "up",
+      "growth": 18.5,
+      "topProducts": [
+        "iPhone 15 Pro",
+        "MacBook Pro M3",
+        "iPad Air",
+        "AirPods Pro",
+        "Apple Watch"
+      ]
+    },
+    {
+      "name": "Samsung",
+      "value": 28,
+      "percentage": 28,
+      "revenue": 320000,
+      "orders": 890,
+      "color": "#0070ba",
+      "icon": "samsung",
+      "trend": "up",
+      "growth": 12.3,
+      "topProducts": [
+        "Galaxy S24",
+        "Galaxy Buds",
+        "Galaxy Watch",
+        "Galaxy Tab",
+        "Galaxy Book"
+      ]
+    },
+    {
+      "name": "Sony",
+      "value": 16,
+      "percentage": 16,
+      "revenue": 180000,
+      "orders": 500,
+      "color": "#28a745",
+      "icon": "sony",
+      "trend": "stable",
+      "growth": 8.7,
+      "topProducts": [
+        "WH-1000XM5",
+        "PlayStation 5",
+        "Alpha A7R V",
+        "WH-CH720N",
+        "WF-1000XM5"
+      ]
+    },
+    {
+      "name": "LG",
+      "value": 11,
+      "percentage": 11,
+      "revenue": 120000,
+      "orders": 333,
+      "color": "#ffc107",
+      "icon": "lg",
+      "trend": "down",
+      "growth": -2.1,
+      "topProducts": [
+        "OLED C3",
+        "Gram Laptop",
+        "UltraGear Monitor",
+        "Tone Free Earbuds",
+        "InstaView Refrigerator"
+      ]
+    },
+    {
+      "name": "Xiaomi",
+      "value": 7,
+      "percentage": 7,
+      "revenue": 80000,
+      "orders": 222,
+      "color": "#6f42c1",
+      "icon": "xiaomi",
+      "trend": "up",
+      "growth": 25.8,
+      "topProducts": [
+        "Redmi Note 13",
+        "Mi Band 8",
+        "Mi TV",
+        "Mi Air Purifier",
+        "Mi Robot Vacuum"
+      ]
+    },
+    {
+      "name": "OnePlus",
+      "value": 5,
+      "percentage": 5,
+      "revenue": 60000,
+      "orders": 167,
+      "color": "#dc3545",
+      "icon": "oneplus",
+      "trend": "up",
+      "growth": 15.2,
+      "topProducts": [
+        "OnePlus 12",
+        "OnePlus Buds",
+        "OnePlus Watch",
+        "OnePlus Pad",
+        "OnePlus Keyboard"
+      ]
+    },
+    {
+      "name": "Huawei",
+      "value": 4,
+      "percentage": 4,
+      "revenue": 40000,
+      "orders": 111,
+      "color": "#fd7e14",
+      "icon": "huawei",
+      "trend": "stable",
+      "growth": 3.5,
+      "topProducts": [
+        "Mate 60 Pro",
+        "FreeBuds Pro",
+        "Watch GT 4",
+        "MatePad Pro",
+        "MateBook X Pro"
+      ]
+    }
+  ],
+  "monthlySales": [
+    {
+      "month": "Jan",
+      "electronics": 137200,
+      "accessories": 98000,
+      "gaming": 78400,
+      "homeOffice": 58800,
+      "mobile": 19600
+    },
+    {
+      "month": "Feb",
+      "electronics": 151200,
+      "accessories": 108000,
+      "gaming": 86400,
+      "homeOffice": 64800,
+      "mobile": 21600
+    },
+    {
+      "month": "Mar",
+      "electronics": 145600,
+      "accessories": 104000,
+      "gaming": 83200,
+      "homeOffice": 62400,
+      "mobile": 20800
+    },
+    {
+      "month": "Apr",
+      "electronics": 168000,
+      "accessories": 120000,
+      "gaming": 96000,
+      "homeOffice": 72000,
+      "mobile": 24000
+    },
+    {
+      "month": "May",
+      "electronics": 182000,
+      "accessories": 130000,
+      "gaming": 104000,
+      "homeOffice": 78000,
+      "mobile": 26000
+    },
+    {
+      "month": "Jun",
+      "electronics": 176400,
+      "accessories": 126000,
+      "gaming": 100800,
+      "homeOffice": 75600,
+      "mobile": 25200
+    },
+    {
+      "month": "Jul",
+      "electronics": 196000,
+      "accessories": 140000,
+      "gaming": 112000,
+      "homeOffice": 84000,
+      "mobile": 28000
+    },
+    {
+      "month": "Aug",
+      "electronics": 210000,
+      "accessories": 150000,
+      "gaming": 120000,
+      "homeOffice": 90000,
+      "mobile": 30000
+    },
+    {
+      "month": "Sep",
+      "electronics": 204400,
+      "accessories": 146000,
+      "gaming": 116800,
+      "homeOffice": 87600,
+      "mobile": 29200
+    },
+    {
+      "month": "Oct",
+      "electronics": 224000,
+      "accessories": 160000,
+      "gaming": 128000,
+      "homeOffice": 96000,
+      "mobile": 32000
+    },
+    {
+      "month": "Nov",
+      "electronics": 235200,
+      "accessories": 168000,
+      "gaming": 134400,
+      "homeOffice": 100800,
+      "mobile": 33600
+    },
+    {
+      "month": "Dec",
+      "electronics": 252000,
+      "accessories": 180000,
+      "gaming": 144000,
+      "homeOffice": 108000,
+      "mobile": 36000
+    }
+  ],
+  "trends": {
+    "electronicsGrowth": 15.2,
+    "accessoriesGrowth": 12.8,
+    "gamingGrowth": 18.5,
+    "homeOfficeGrowth": 5.2,
+    "mobileGrowth": -2.1
+  },
+  "statistics": {
+    "totalRevenue": 1120000,
+    "totalOrders": 3100,
+    "averageOrderValue": 361.29,
+    "topCategory": "Electronics",
+    "fastestGrowingCategory": "Gaming"
+  }
+}

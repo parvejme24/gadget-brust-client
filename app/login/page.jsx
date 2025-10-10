@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import gadgetsImage from "@/assets/gadgets.svg";
-import { useLogin } from "@/lib/hooks/useAuth";
+import { useFirebaseAuth } from "@/lib/providers/AuthProvider";
+import { firebaseAuthService } from "@/lib/services/firebaseAuthService";
 import { useAppDispatch } from "@/lib/hooks/redux";
 import { setUser } from "@/lib/store/slices/authSlice";
 import SuccessMessage from "@/components/ui/success-message";
@@ -16,7 +17,7 @@ import Swal from "sweetalert2";
 export default function LoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const loginMutation = useLogin();
+  const { loginWithGoogle, loginWithEmail } = useFirebaseAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,79 +40,129 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true);
 
-    // using react query mutation
-    loginMutation.mutate(formData, {
-      onSuccess: (response) => {
-        console.log("Login successful:", response);
+    try {
+      const response = await firebaseAuthService.loginWithEmail(formData.email, formData.password);
+      console.log("Login successful:", response);
 
-        // Store user data and tokens in localStorage
-        if (response.data) {
-          const { user, token, refreshToken } = response.data;
-          
-          // Store tokens
-          if (token) {
-            localStorage.setItem('accessToken', token);
-          }
-          if (refreshToken) {
-            localStorage.setItem('refreshToken', refreshToken);
-          }
-          
-          // Store user data
-          if (user) {
-            localStorage.setItem('userData', JSON.stringify(user));
-            // dispatch user data to Redux store
-            dispatch(setUser(user));
-          }
+      // Store user data and tokens in localStorage
+      const { user, token, refreshToken } = response;
+      
+      // Store tokens
+      if (token) {
+        localStorage.setItem('accessToken', token);
+      }
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      
+      // Store user data
+      if (user) {
+        localStorage.setItem('userData', JSON.stringify(user));
+        // dispatch user data to Redux store
+        dispatch(setUser(user));
+      }
+
+      // show sweet alert success message
+      Swal.fire({
+        title: "Welcome Back!",
+        text: "You have successfully logged in.",
+        icon: "success",
+        confirmButtonColor: "#38AD81",
+        confirmButtonText: "Continue to Home",
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then((result) => {
+        if (
+          result.isConfirmed ||
+          result.dismiss === Swal.DismissReason.timer
+        ) {
+          router.push("/");
         }
+      });
+    } catch (error) {
+      console.error("Login failed:", error);
 
-        // show sweet alert success message
-        Swal.fire({
-          title: "Welcome Back!",
-          text: "You have successfully logged in.",
-          icon: "success",
-          confirmButtonColor: "#38AD81",
-          confirmButtonText: "Continue to Dashboard",
-          timer: 3000,
-          timerProgressBar: true,
-          showConfirmButton: true,
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-        }).then((result) => {
-          if (
-            result.isConfirmed ||
-            result.dismiss === Swal.DismissReason.timer
-          ) {
-            router.push("/dashboard");
-          }
-        });
-      },
-      onError: (error) => {
-        console.error("Login failed:", error);
-
-        // show sweet alert error message
-        Swal.fire({
-          title: "Login Failed",
-          text: error.message || "Invalid email or password. Please try again.",
-          icon: "error",
-          confirmButtonColor: "#dc2626",
-          confirmButtonText: "Try Again",
-          showConfirmButton: true,
-        });
-      },
-    });
+      // show sweet alert error message
+      Swal.fire({
+        title: "Login Failed",
+        text: error.message || "Invalid email or password. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+        confirmButtonText: "Try Again",
+        showConfirmButton: true,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => {
-    // show sweet alert for google login coming soon
-    Swal.fire({
-      title: "Google Login",
-      text: "Google authentication is coming soon! Please use email and password for now.",
-      icon: "info",
-      confirmButtonColor: "#38AD81",
-      confirmButtonText: "Got it",
-      showConfirmButton: true,
-    });
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await firebaseAuthService.loginWithGoogle();
+      console.log("Google login successful:", response);
+
+      // Store user data and tokens in localStorage
+      const { user, token, refreshToken } = response;
+      
+      // Store tokens
+      if (token) {
+        localStorage.setItem('accessToken', token);
+      }
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      
+      // Store user data
+      if (user) {
+        localStorage.setItem('userData', JSON.stringify(user));
+        // dispatch user data to Redux store
+        dispatch(setUser(user));
+      }
+
+      // show sweet alert success message
+      Swal.fire({
+        title: "Welcome Back!",
+        text: "You have successfully logged in with Google.",
+        icon: "success",
+        confirmButtonColor: "#38AD81",
+        confirmButtonText: "Continue to Home",
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then((result) => {
+        if (
+          result.isConfirmed ||
+          result.dismiss === Swal.DismissReason.timer
+        ) {
+          router.push("/");
+        }
+      });
+    } catch (error) {
+      console.error("Google login failed:", error);
+
+      // show sweet alert error message
+      Swal.fire({
+        title: "Google Login Failed",
+        text: error.message || "Unable to login with Google. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+        confirmButtonText: "Try Again",
+        showConfirmButton: true,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -228,10 +280,10 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              disabled={loginMutation.isPending}
+              disabled={loading}
               className="w-full cursor-pointer bg-[#38AD81] hover:bg-[#38AD81]/90 text-white font-medium h-10 text-sm sm:text-base disabled:opacity-50"
             >
-              {loginMutation.isPending ? "Signing in..." : "Sign in"}
+              {loading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
 

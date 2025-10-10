@@ -17,9 +17,10 @@ export default function NavItemsBar() {
   // Fetch categories from API
   const { data: categoriesData, isLoading: categoriesLoading } = useAllCategories();
 
-  // Static navigation items (Home and Contact)
+  // Static navigation items (Home, Wishlist, and Contact)
   const staticNavItems = [
     { name: "Home", href: "/", hasDropdown: false },
+    { name: "Wishlist", href: "/wishlist", hasDropdown: false },
     { name: "Contact", href: "/contact", hasDropdown: false },
   ];
 
@@ -57,7 +58,8 @@ export default function NavItemsBar() {
         })) || [],
       })),
     }] : []),
-    staticNavItems[1], // Contact
+    staticNavItems[1], // Wishlist
+    staticNavItems[2], // Contact
   ];
 
   // close mobile menu when clicking outside

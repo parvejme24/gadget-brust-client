@@ -1,0 +1,219 @@
+{
+  "paymentMethods": [
+    {
+      "name": "Cash on Delivery",
+      "value": 30,
+      "percentage": 30,
+      "revenue": 350000,
+      "orders": 970,
+      "color": "#38AD81",
+      "icon": "cash",
+      "trend": "up",
+      "growth": 12.5
+    },
+    {
+      "name": "bKash",
+      "value": 24,
+      "percentage": 24,
+      "revenue": 280000,
+      "orders": 775,
+      "color": "#E2136E",
+      "icon": "mobile",
+      "trend": "up",
+      "growth": 15.2
+    },
+    {
+      "name": "Nagad",
+      "value": 18,
+      "percentage": 18,
+      "revenue": 210000,
+      "orders": 581,
+      "color": "#F7941D",
+      "icon": "mobile",
+      "trend": "up",
+      "growth": 18.8
+    },
+    {
+      "name": "Rocket",
+      "value": 15,
+      "percentage": 15,
+      "revenue": 175000,
+      "orders": 484,
+      "color": "#00A651",
+      "icon": "mobile",
+      "trend": "stable",
+      "growth": 10.5
+    },
+    {
+      "name": "Upay",
+      "value": 9,
+      "percentage": 9,
+      "revenue": 105000,
+      "orders": 291,
+      "color": "#FF6B35",
+      "icon": "mobile",
+      "trend": "up",
+      "growth": 22.1
+    },
+    {
+      "name": "Bank Transfer",
+      "value": 6,
+      "percentage": 6,
+      "revenue": 70000,
+      "orders": 194,
+      "color": "#0070ba",
+      "icon": "bank",
+      "trend": "stable",
+      "growth": 8.3
+    },
+    {
+      "name": "Stripe",
+      "value": 3,
+      "percentage": 3,
+      "revenue": 35000,
+      "orders": 97,
+      "color": "#635BFF",
+      "icon": "credit-card",
+      "trend": "up",
+      "growth": 25.0
+    }
+  ],
+  "monthlyBreakdown": [
+    {
+      "month": "Jan",
+      "cashOnDelivery": 105000,
+      "bkash": 84000,
+      "nagad": 63000,
+      "rocket": 52500,
+      "upay": 31500,
+      "bankTransfer": 21000,
+      "stripe": 10500
+    },
+    {
+      "month": "Feb",
+      "cashOnDelivery": 112000,
+      "bkash": 89600,
+      "nagad": 67200,
+      "rocket": 56000,
+      "upay": 33600,
+      "bankTransfer": 22400,
+      "stripe": 11200
+    },
+    {
+      "month": "Mar",
+      "cashOnDelivery": 108500,
+      "bkash": 86800,
+      "nagad": 65100,
+      "rocket": 54250,
+      "upay": 32550,
+      "bankTransfer": 21700,
+      "stripe": 10850
+    },
+    {
+      "month": "Apr",
+      "cashOnDelivery": 119000,
+      "bkash": 95200,
+      "nagad": 71400,
+      "rocket": 59500,
+      "upay": 35700,
+      "bankTransfer": 23800,
+      "stripe": 11900
+    },
+    {
+      "month": "May",
+      "cashOnDelivery": 126000,
+      "bkash": 100800,
+      "nagad": 75600,
+      "rocket": 63000,
+      "upay": 37800,
+      "bankTransfer": 25200,
+      "stripe": 12600
+    },
+    {
+      "month": "Jun",
+      "cashOnDelivery": 120750,
+      "bkash": 96600,
+      "nagad": 72450,
+      "rocket": 60375,
+      "upay": 36225,
+      "bankTransfer": 24150,
+      "stripe": 12075
+    },
+    {
+      "month": "Jul",
+      "cashOnDelivery": 131250,
+      "bkash": 105000,
+      "nagad": 78750,
+      "rocket": 65625,
+      "upay": 39375,
+      "bankTransfer": 26250,
+      "stripe": 13125
+    },
+    {
+      "month": "Aug",
+      "cashOnDelivery": 140000,
+      "bkash": 112000,
+      "nagad": 84000,
+      "rocket": 70000,
+      "upay": 42000,
+      "bankTransfer": 28000,
+      "stripe": 14000
+    },
+    {
+      "month": "Sep",
+      "cashOnDelivery": 136500,
+      "bkash": 109200,
+      "nagad": 81900,
+      "rocket": 68250,
+      "upay": 40950,
+      "bankTransfer": 27300,
+      "stripe": 13650
+    },
+    {
+      "month": "Oct",
+      "cashOnDelivery": 147000,
+      "bkash": 117600,
+      "nagad": 88200,
+      "rocket": 73500,
+      "upay": 44100,
+      "bankTransfer": 29400,
+      "stripe": 14700
+    },
+    {
+      "month": "Nov",
+      "cashOnDelivery": 151200,
+      "bkash": 120960,
+      "nagad": 90720,
+      "rocket": 75600,
+      "upay": 45360,
+      "bankTransfer": 30240,
+      "stripe": 15120
+    },
+    {
+      "month": "Dec",
+      "cashOnDelivery": 161000,
+      "bkash": 128800,
+      "nagad": 96600,
+      "rocket": 80500,
+      "upay": 48300,
+      "bankTransfer": 32200,
+      "stripe": 16100
+    }
+  ],
+  "trends": {
+    "cashOnDeliveryGrowth": 12.5,
+    "bkashGrowth": 15.2,
+    "nagadGrowth": 18.8,
+    "rocketGrowth": 10.5,
+    "upayGrowth": 22.1,
+    "bankTransferGrowth": 8.3,
+    "stripeGrowth": 25.0
+  },
+  "statistics": {
+    "totalRevenue": 1225000,
+    "totalOrders": 3392,
+    "averageOrderValue": 361.29,
+    "mostPopularMethod": "Cash on Delivery",
+    "fastestGrowingMethod": "Stripe"
+  }
+}

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import gadgetsImage from "@/assets/gadgets.svg";
-import { useRegister } from "@/lib/hooks/useAuth";
+import { useFirebaseAuth } from "@/lib/providers/AuthProvider";
+import { firebaseAuthService } from "@/lib/services/firebaseAuthService";
 import { useAppDispatch } from "@/lib/hooks/redux";
 import { setUser } from "@/lib/store/slices/authSlice";
 import SuccessMessage from "@/components/ui/success-message";
@@ -16,7 +17,7 @@ import Swal from "sweetalert2";
 export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const registerMutation = useRegister();
+  const { registerWithEmail } = useFirebaseAuth();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -26,6 +27,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,79 +41,133 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true);
 
-    // using react query mutation
-    registerMutation.mutate(formData, {
-      onSuccess: (response) => {
-        console.log("Registration successful:", response);
+    try {
+      const response = await firebaseAuthService.registerWithEmail(
+        formData.email, 
+        formData.password, 
+        formData.fullName
+      );
+      console.log("Registration successful:", response);
 
-        // Store user data and tokens in localStorage
-        if (response.data) {
-          const { user, token, refreshToken } = response.data;
-          
-          // Store tokens
-          if (token) {
-            localStorage.setItem('accessToken', token);
-          }
-          if (refreshToken) {
-            localStorage.setItem('refreshToken', refreshToken);
-          }
-          
-          // Store user data
-          if (user) {
-            localStorage.setItem('userData', JSON.stringify(user));
-            // dispatch user data to Redux store
-            dispatch(setUser(user));
-          }
+      // Store user data and tokens in localStorage
+      const { user, token, refreshToken } = response;
+      
+      // Store tokens
+      if (token) {
+        localStorage.setItem('accessToken', token);
+      }
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      
+      // Store user data
+      if (user) {
+        localStorage.setItem('userData', JSON.stringify(user));
+        // dispatch user data to Redux store
+        dispatch(setUser(user));
+      }
+
+      // show sweet alert success message
+      Swal.fire({
+        title: "Account Created!",
+        text: "Welcome to Gadget Brust! Your account has been created successfully.",
+        icon: "success",
+        confirmButtonColor: "#38AD81",
+        confirmButtonText: "Continue to Home",
+        timer: 4000,
+        timerProgressBar: true,
+        showConfirmButton: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then((result) => {
+        if (
+          result.isConfirmed ||
+          result.dismiss === Swal.DismissReason.timer
+        ) {
+          router.push("/");
         }
+      });
+    } catch (error) {
+      console.error("Registration failed:", error);
 
-        // show sweet alert success message
-        Swal.fire({
-          title: "Account Created!",
-          text: "Welcome to Gadget Brust! Your account has been created successfully.",
-          icon: "success",
-          confirmButtonColor: "#38AD81",
-          confirmButtonText: "Continue to Dashboard",
-          timer: 4000,
-          timerProgressBar: true,
-          showConfirmButton: true,
-          allowOutsideClick: false,
-          allowEscapeKey: false,
-        }).then((result) => {
-          if (
-            result.isConfirmed ||
-            result.dismiss === Swal.DismissReason.timer
-          ) {
-            router.push("/dashboard");
-          }
-        });
-      },
-      onError: (error) => {
-        console.error("Registration failed:", error);
-
-        // show sweet alert error message
-        Swal.fire({
-          title: "Registration Failed",
-          text: error.message || "Unable to create account. Please try again.",
-          icon: "error",
-          confirmButtonColor: "#dc2626",
-          confirmButtonText: "Try Again",
-          showConfirmButton: true,
-        });
-      },
-    });
+      // show sweet alert error message
+      Swal.fire({
+        title: "Registration Failed",
+        text: error.message || "Unable to create account. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+        confirmButtonText: "Try Again",
+        showConfirmButton: true,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleSignUp = () => {
-    // show sweet alert for google signup coming soon
-    Swal.fire({
-      title: "Google Sign Up",
-      text: "Google authentication is coming soon! Please use email and password for now.",
-      icon: "info",
-      confirmButtonColor: "#38AD81",
-      confirmButtonText: "Got it",
-      showConfirmButton: true,
-    });
+  const handleGoogleSignUp = async () => {
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await firebaseAuthService.loginWithGoogle();
+      console.log("Google signup successful:", response);
+
+      // Store user data and tokens in localStorage
+      const { user, token, refreshToken } = response;
+      
+      // Store tokens
+      if (token) {
+        localStorage.setItem('accessToken', token);
+      }
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      
+      // Store user data
+      if (user) {
+        localStorage.setItem('userData', JSON.stringify(user));
+        // dispatch user data to Redux store
+        dispatch(setUser(user));
+      }
+
+      // show sweet alert success message
+      Swal.fire({
+        title: "Account Created!",
+        text: "Welcome to Gadget Brust! Your account has been created with Google.",
+        icon: "success",
+        confirmButtonColor: "#38AD81",
+        confirmButtonText: "Continue to Home",
+        timer: 4000,
+        timerProgressBar: true,
+        showConfirmButton: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then((result) => {
+        if (
+          result.isConfirmed ||
+          result.dismiss === Swal.DismissReason.timer
+        ) {
+          router.push("/");
+        }
+      });
+    } catch (error) {
+      console.error("Google signup failed:", error);
+
+      // show sweet alert error message
+      Swal.fire({
+        title: "Google Sign Up Failed",
+        text: error.message || "Unable to create account with Google. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+        confirmButtonText: "Try Again",
+        showConfirmButton: true,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -239,10 +295,10 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              disabled={registerMutation.isPending}
+              disabled={loading}
               className="w-full cursor-pointer bg-[#38AD81] hover:bg-[#38AD81]/90 text-white font-medium h-10 text-sm sm:text-base disabled:opacity-50"
             >
-              {registerMutation.isPending ? "Creating Account..." : "Sign up"}
+              {loading ? "Creating Account..." : "Sign up"}
             </Button>
           </form>
 

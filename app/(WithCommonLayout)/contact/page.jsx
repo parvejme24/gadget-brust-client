@@ -8,10 +8,6 @@ import {
   FaEnvelope,
   FaMapMarkerAlt,
   FaPhone,
-  FaUser,
-  FaBriefcase,
-  FaBuilding,
-  FaComments,
   FaFacebook,
   FaTwitter,
   FaInstagram,
@@ -21,7 +17,7 @@ import {
 
 export default function ContactPage() {
   return (
-    <div className="">
+    <div className="border-b border-gray-200">
       <div className="w-full h-80 rounded-xl overflow-hidden">
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d19868.373358018045!2d-0.11951900000000001!3d51.503186!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x487604d6521cf76f%3A0x59786c2a753ead99!2sGinza%20St.%20James&#39;s%20-%20Japanese%20Restaurant!5e0!3m2!1sen!2sus!4v1755801895329!5m2!1sen!2sus"
@@ -110,7 +106,8 @@ export default function ContactPage() {
                   Follow Us
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Stay connected with us on social media for the latest updates and news.
+                  Stay connected with us on social media for the latest updates
+                  and news.
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link

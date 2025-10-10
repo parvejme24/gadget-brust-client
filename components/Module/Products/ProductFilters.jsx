@@ -11,7 +11,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Search, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Filter, X, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
 export default function ProductFilters({
   searchTerm,
@@ -24,6 +24,7 @@ export default function ProductFilters({
   brands,
   remarks,
   getSubcategories,
+  isLoading = false,
 }) {
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -119,6 +120,7 @@ export default function ProductFilters({
             size="sm"
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+            disabled={isLoading}
           >
             <Filter className="h-4 w-4 mr-2" />
             Filters

@@ -5,6 +5,7 @@ import { Upload, Image, X } from 'lucide-react';
 const FileUpload = ({ 
   onFileChange, 
   preview, 
+  file, // Add file prop to show file info
   accept = "image/*", 
   className = "",
   disabled = false 
@@ -112,6 +113,12 @@ const FileUpload = ({
             
             <div className="text-center">
               <p className="text-sm font-medium text-gray-700 mb-1">Image Preview</p>
+              {file && (
+                <div className="text-xs text-gray-500 mb-1">
+                  <p>File: {file.name}</p>
+                  <p>Size: {(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+              )}
               <p className="text-xs text-gray-500">Click or drag to change image</p>
             </div>
           </div>
@@ -137,7 +144,7 @@ const FileUpload = ({
                 <span className="text-[#38AD81] font-medium">browse</span>
               </p>
               <p className="text-xs text-gray-400">
-                Supports: JPG, PNG, GIF, WebP
+                Supports: JPEG, JPG, PNG, GIF, WebP (Max 5MB)
               </p>
             </div>
           </div>

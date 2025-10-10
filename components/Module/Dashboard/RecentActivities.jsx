@@ -37,19 +37,20 @@ export default function RecentActivities({ data, isLoading }) {
     );
   }
 
+  // If no data, use fake data
   if (!data) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center text-gray-500 py-8">
-            No recent activities available
-          </div>
-        </CardContent>
-      </Card>
-    );
+    data = [
+      { type: 'order', message: 'New order #1234 received', time: '2 minutes ago', status: 'success' },
+      { type: 'product', message: 'Product "iPhone 15 Pro" added', time: '15 minutes ago', status: 'info' },
+      { type: 'customer', message: 'New customer registered', time: '1 hour ago', status: 'success' },
+      { type: 'order', message: 'Order #1233 completed', time: '2 hours ago', status: 'success' },
+      { type: 'product', message: 'Product "Samsung Galaxy S24" updated', time: '3 hours ago', status: 'info' },
+      { type: 'order', message: 'Order #1232 cancelled', time: '4 hours ago', status: 'warning' },
+      { type: 'customer', message: 'Customer profile updated', time: '5 hours ago', status: 'info' },
+      { type: 'product', message: 'Low stock alert for "MacBook Pro"', time: '6 hours ago', status: 'warning' },
+      { type: 'order', message: 'Order #1231 shipped', time: '8 hours ago', status: 'success' },
+      { type: 'product', message: 'New category "Smart Home" added', time: '1 day ago', status: 'info' }
+    ];
   }
 
   const formatDate = (dateString) => {
@@ -102,40 +103,61 @@ export default function RecentActivities({ data, isLoading }) {
     }
   };
 
-  const activities = [
-    ...(data.recentOrders || []).map(order => ({
-      type: 'order',
-      title: `New order ${order.invoiceNumber}`,
-      subtitle: `${order.user_id?.fullName || order.user_id?.email} - ${formatPrice(order.total)}`,
-      status: order.status,
-      time: order.createdAt,
-      icon: getActivityIcon('order')
-    })),
-    ...(data.recentCustomers || []).map(customer => ({
-      type: 'customer',
-      title: `New customer registered`,
-      subtitle: `${customer.fullName} - ${customer.email}`,
-      status: customer.role,
-      time: customer.createdAt,
-      icon: getActivityIcon('customer')
-    })),
-    ...(data.recentProducts || []).map(product => ({
-      type: 'product',
-      title: `New product added`,
-      subtitle: `${product.title} - ${formatPrice(product.price)}`,
-      status: product.stock > 10 ? 'in-stock' : 'low-stock',
-      time: product.createdAt,
-      icon: getActivityIcon('product')
-    })),
-    ...(data.recentPayments || []).map(payment => ({
-      type: 'payment',
-      title: `Payment ${payment.status}`,
-      subtitle: `${payment.user_id?.fullName || payment.user_id?.email} - ${formatPrice(payment.amount)}`,
-      status: payment.status,
-      time: payment.createdAt,
-      icon: getActivityIcon('payment')
-    }))
-  ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 10);
+  // Handle different data structures
+  let activities = [];
+  
+  if (Array.isArray(data)) {
+    // If data is already an array of activities
+    activities = data.map(activity => ({
+      type: activity.type || 'order',
+      title: activity.message || activity.title || 'Activity',
+      subtitle: activity.subtitle || '',
+      status: activity.status || 'info',
+      time: activity.time || activity.createdAt || new Date().toISOString(),
+      icon: getActivityIcon(activity.type || 'order')
+    }));
+  } else if (data && typeof data === 'object') {
+    // If data is an object with different arrays
+    activities = [
+      ...(data.recentOrders || []).map(order => ({
+        type: 'order',
+        title: `New order ${order.invoiceNumber}`,
+        subtitle: `${order.user_id?.fullName || order.user_id?.email} - ${formatPrice(order.total)}`,
+        status: order.status,
+        time: order.createdAt,
+        icon: getActivityIcon('order')
+      })),
+      ...(data.recentCustomers || []).map(customer => ({
+        type: 'customer',
+        title: `New customer registered`,
+        subtitle: `${customer.fullName} - ${customer.email}`,
+        status: customer.role,
+        time: customer.createdAt,
+        icon: getActivityIcon('customer')
+      })),
+      ...(data.recentProducts || []).map(product => ({
+        type: 'product',
+        title: `New product added`,
+        subtitle: `${product.title} - ${formatPrice(product.price)}`,
+        status: product.stock > 10 ? 'in-stock' : 'low-stock',
+        time: product.createdAt,
+        icon: getActivityIcon('product')
+      })),
+      ...(data.recentPayments || []).map(payment => ({
+        type: 'payment',
+        title: `Payment ${payment.status}`,
+        subtitle: `${payment.user_id?.fullName || payment.user_id?.email} - ${formatPrice(payment.amount)}`,
+        status: payment.status,
+        time: payment.createdAt,
+        icon: getActivityIcon('payment')
+      }))
+    ];
+  }
+  
+  // Sort by time and limit to 10
+  activities = activities
+    .sort((a, b) => new Date(b.time) - new Date(a.time))
+    .slice(0, 10);
 
   return (
     <Card>

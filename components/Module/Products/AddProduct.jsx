@@ -111,38 +111,56 @@ export default function AddProduct({ isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!formData.title.trim()) {
+      toast.error("Product title is required");
+      return;
+    }
+    if (!formData.shortDescription.trim()) {
+      toast.error("Product description is required");
+      return;
+    }
+    if (!formData.price || Number(formData.price) <= 0) {
+      toast.error("Valid price is required");
+      return;
+    }
+    if (!formData.stock || Number(formData.stock) < 0) {
+      toast.error("Valid stock quantity is required");
+      return;
+    }
+    if (!formData.category) {
+      toast.error("Category is required");
+      return;
+    }
+    if (!formData.brand) {
+      toast.error("Brand is required");
+      return;
+    }
+    
     try {
-      const formDataToSend = new FormData();
-      
-      // Basic fields
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('shortDescription', formData.shortDescription);
-      formDataToSend.append('price', formData.price);
-      formDataToSend.append('discount', formData.discount || 0);
-      formDataToSend.append('stock', formData.stock);
-      formDataToSend.append('star', formData.star || 0);
-      formDataToSend.append('remark', formData.remark);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('subcategory', formData.subcategory);
-      formDataToSend.append('brand', formData.brand);
-      
-      // Key features
-      formDataToSend.append('keyFeatures', JSON.stringify(formData.keyFeatures));
-      
-      // Images
-      if (formData.image) {
-        formDataToSend.append('image', formData.image);
-      }
-      
-      formData.images.forEach((image, index) => {
-        formDataToSend.append(`images`, image);
-      });
+      // Create product data object (not FormData)
+      const productData = {
+        title: formData.title.trim(),
+        shortDescription: formData.shortDescription.trim(),
+        price: Number(formData.price),
+        discount: Number(formData.discount) || 0,
+        stock: Number(formData.stock),
+        star: Number(formData.star) || 0,
+        remark: formData.remark,
+        category: formData.category,
+        subcategory: formData.subcategory,
+        brand: formData.brand,
+        keyFeatures: formData.keyFeatures,
+        image: formData.image, // Send file directly to backend
+        images: formData.images,
+      };
 
-      await createProductMutation.mutateAsync(formDataToSend);
+      await createProductMutation.mutateAsync(productData);
       toast.success("Product created successfully");
       handleClose();
     } catch (error) {
-      toast.error(error.message || "Failed to create product");
+      console.error("Create product error:", error);
+      toast.error(error.response?.data?.message || error.message || "Failed to create product");
     }
   };
 

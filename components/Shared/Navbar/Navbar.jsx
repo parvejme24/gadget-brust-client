@@ -24,8 +24,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useFirebaseAuth } from "@/lib/providers/AuthProvider";
+import { firebaseAuthService } from "@/lib/services/firebaseAuthService";
 import { useAppSelector, useAppDispatch } from "@/lib/hooks/redux";
-import { useLogout } from "@/lib/hooks/useAuth";
 import { logoutUser, setUser } from "@/lib/store/slices/authSlice";
 import Swal from "sweetalert2";
 
@@ -35,16 +36,20 @@ export default function Navbar() {
   const mobileMenuRef = useRef(null);
   const menuButtonRef = useRef(null);
 
+  // Firebase Auth context
+  const { user: firebaseUser, logout: firebaseLogout } = useFirebaseAuth();
+  
   // Redux state and dispatch
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-  // React Query hooks
-  const logoutMutation = useLogout();
-
   // Check if user has token in localStorage (for initial load)
   const [hasToken, setHasToken] = useState(false);
   const [storedUser, setStoredUser] = useState(null);
+  
+  // Determine if user is authenticated (Firebase + Redux + localStorage)
+  const isUserAuthenticated = isAuthenticated || hasToken || !!firebaseUser;
+  const currentUser = user || storedUser || firebaseUser;
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -55,7 +60,7 @@ export default function Navbar() {
   };
 
   // logout handler
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Swal.fire({
       title: "Logout",
       text: "Are you sure you want to logout?",
@@ -65,40 +70,43 @@ export default function Navbar() {
       cancelButtonColor: "#dc2626",
       confirmButtonText: "Yes, Logout",
       cancelButtonText: "Cancel",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        // using react query mutation
-        logoutMutation.mutate(undefined, {
-          onSuccess: () => {
-            // Clear all stored data
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("userData");
+        try {
+          // Use Firebase logout service
+          await firebaseAuthService.logout();
+          
+          // Clear Redux store
+          dispatch(logoutUser());
+          
+          // Clear all stored data
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("userData");
 
-            // show success message
-            Swal.fire({
-              title: "Logged Out",
-              text: "You have been successfully logged out.",
-              icon: "success",
-              confirmButtonColor: "#38AD81",
-              confirmButtonText: "OK",
-              timer: 2000,
-              timerProgressBar: true,
-            });
-            // redirect to home page
-            window.location.href = "/";
-          },
-          onError: (error) => {
-            console.error("Logout failed:", error);
-            Swal.fire({
-              title: "Logout Failed",
-              text: "Unable to logout. Please try again.",
-              icon: "error",
-              confirmButtonColor: "#dc2626",
-              confirmButtonText: "OK",
-            });
-          },
-        });
+          // show success message
+          Swal.fire({
+            title: "Logged Out",
+            text: "You have been successfully logged out.",
+            icon: "success",
+            confirmButtonColor: "#38AD81",
+            confirmButtonText: "OK",
+            timer: 2000,
+            timerProgressBar: true,
+          });
+          
+          // redirect to home page
+          window.location.href = "/";
+        } catch (error) {
+          console.error("Logout failed:", error);
+          Swal.fire({
+            title: "Logout Failed",
+            text: "Unable to logout. Please try again.",
+            icon: "error",
+            confirmButtonColor: "#dc2626",
+            confirmButtonText: "OK",
+          });
+        }
       }
     });
   };
@@ -114,8 +122,6 @@ export default function Navbar() {
       .slice(0, 2);
   };
 
-  // Get current user data
-  const currentUser = user || storedUser;
 
   // Load user data from localStorage on component mount
   useEffect(() => {
@@ -236,7 +242,7 @@ export default function Navbar() {
           <div className="flex items-center gap-1 sm:gap-2 md:gap-3 lg:gap-4">
             {/* user account */}
             <div className="relative">
-              {isAuthenticated || hasToken ? (
+              {isUserAuthenticated ? (
                 // User dropdown when logged in
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -281,7 +287,11 @@ export default function Navbar() {
                     {/* Menu Items */}
                     <DropdownMenuItem asChild>
                       <Link
-                        href={currentUser?.role === "admin" ? "/admin-dashboard" : "/dashboard"}
+                        href={
+                          currentUser?.role === "admin"
+                            ? "/admin-dashboard"
+                            : "/dashboard"
+                        }
                         className="flex items-center gap-3 cursor-pointer text-sm"
                       >
                         <FaTachometerAlt className="text-[#38AD81] w-4 h-4" />
@@ -291,7 +301,11 @@ export default function Navbar() {
 
                     <DropdownMenuItem asChild>
                       <Link
-                        href={currentUser?.role === "admin" ? "/admin-dashboard/profile" : "/dashboard/profile"}
+                        href={
+                          currentUser?.role === "admin"
+                            ? "/admin-dashboard/profile"
+                            : "/dashboard/profile"
+                        }
                         className="flex items-center gap-3 cursor-pointer text-sm"
                       >
                         <FaEdit className="text-[#38AD81] w-4 h-4" />
@@ -301,7 +315,11 @@ export default function Navbar() {
 
                     <DropdownMenuItem asChild>
                       <Link
-                        href={currentUser?.role === "admin" ? "/admin-dashboard/orders" : "/dashboard/orders"}
+                        href={
+                          currentUser?.role === "admin"
+                            ? "/admin-dashboard/orders"
+                            : "/dashboard/orders"
+                        }
                         className="flex items-center gap-3 cursor-pointer text-sm"
                       >
                         <FaShoppingBag className="text-[#38AD81] w-4 h-4" />
@@ -337,6 +355,7 @@ export default function Navbar() {
             {/* wishlist */}
             <div className="relative">
               <Button
+                onClick={() => (window.location.href = "/wishlist")}
                 variant="ghost"
                 size="sm"
                 className="border border-[#BFBDBD] cursor-pointer h-8 w-8 sm:h-9 md:h-10 sm:w-9 md:w-10 p-0 text-gray-700 hover:text-[#38AD81] hover:border-[#38AD81] hover:bg-gray-50"
@@ -353,6 +372,7 @@ export default function Navbar() {
             {/* shopping cart */}
             <div className="relative">
               <Button
+                onClick={() => (window.location.href = "/cart")}
                 variant="ghost"
                 size="sm"
                 className="border border-[#BFBDBD] cursor-pointer h-8 w-8 sm:h-9 md:h-10 sm:w-9 md:w-10 p-0 text-gray-700 hover:text-[#38AD81] hover:border-[#38AD81] hover:bg-gray-50"
@@ -397,7 +417,7 @@ export default function Navbar() {
 
             {/* mobile menu items */}
             <div className="space-y-2">
-              {isAuthenticated || hasToken ? (
+              {isUserAuthenticated ? (
                 // Mobile menu for logged in users
                 <>
                   <div className="px-3 py-2 border-b border-gray-100">
@@ -417,25 +437,37 @@ export default function Navbar() {
                   </div>
 
                   <Link
-                    href={currentUser?.role === "admin" ? "/admin-dashboard" : "/dashboard"}
+                    href={
+                      currentUser?.role === "admin"
+                        ? "/admin-dashboard"
+                        : "/dashboard"
+                    }
                     className="flex items-center gap-3 py-2 px-3 text-gray-700 hover:text-[#38AD81] hover:bg-gray-50 rounded-md transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <FaTachometerAlt className="text-[#38AD81] w-4 h-4" />
                     <span>Dashboard</span>
                   </Link>
-                  
+
                   <Link
-                    href={currentUser?.role === "admin" ? "/admin-dashboard/profile" : "/dashboard/profile"}
+                    href={
+                      currentUser?.role === "admin"
+                        ? "/admin-dashboard/profile"
+                        : "/dashboard/profile"
+                    }
                     className="flex items-center gap-3 py-2 px-3 text-gray-700 hover:text-[#38AD81] hover:bg-gray-50 rounded-md transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <FaEdit className="text-[#38AD81] w-4 h-4" />
                     <span>Edit Profile</span>
                   </Link>
-                  
+
                   <Link
-                    href={currentUser?.role === "admin" ? "/admin-dashboard/orders" : "/dashboard/orders"}
+                    href={
+                      currentUser?.role === "admin"
+                        ? "/admin-dashboard/orders"
+                        : "/dashboard/orders"
+                    }
                     className="flex items-center gap-3 py-2 px-3 text-gray-700 hover:text-[#38AD81] hover:bg-gray-50 rounded-md transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

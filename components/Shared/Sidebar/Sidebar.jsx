@@ -7,13 +7,13 @@ import {
   MdInventory,
   MdShoppingCart,
   MdPeople,
-  MdAnalytics,
   MdLocalShipping,
   MdCategory,
   MdPayment,
   MdReport,
   MdStore,
   MdBrandingWatermark,
+  MdFavorite,
 } from "react-icons/md";
 import logo from "@/assets/logo.svg";
 
@@ -52,9 +52,9 @@ export default function Sidebar({ isOpen }) {
       href: "/admin/customers",
     },
     {
-      name: "Analytics",
-      icon: <MdAnalytics className="w-5 h-5" />,
-      href: "/admin/analytics",
+      name: "Wishlist",
+      icon: <MdFavorite className="w-5 h-5" />,
+      href: "/admin/wishlist",
     },
     {
       name: "Reports",

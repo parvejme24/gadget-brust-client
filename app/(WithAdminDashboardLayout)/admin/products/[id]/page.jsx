@@ -56,7 +56,7 @@ export default function ProductDetailsPage() {
         duration: 4000,
       });
       
-      router.push('/products');
+      router.push('/admin/products');
     },
     onError: (error) => {
       console.error('Error deleting product:', error);
@@ -70,7 +70,7 @@ export default function ProductDetailsPage() {
   });
 
   const handleEdit = () => {
-    router.push(`/products/edit/${productId}`);
+    router.push(`/admin/products/edit/${productId}`);
   };
 
   const handleDelete = () => {
@@ -112,7 +112,7 @@ export default function ProductDetailsPage() {
           <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Product Not Found</h3>
           <p className="text-gray-600 mb-4">The product you're looking for doesn't exist.</p>
-          <Button onClick={() => router.push('/products')}>
+          <Button onClick={() => router.push('/admin/products')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Products
           </Button>
@@ -134,7 +134,7 @@ export default function ProductDetailsPage() {
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
-            onClick={() => router.push('/products')}
+            onClick={() => router.push('/admin/products')}
             className="cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

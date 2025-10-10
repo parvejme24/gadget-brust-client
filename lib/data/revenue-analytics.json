@@ -1,0 +1,192 @@
+{
+  "monthly": [
+    {
+      "month": "Jan",
+      "revenue": 65000,
+      "orders": 180,
+      "customers": 65,
+      "growth": 12.5
+    },
+    {
+      "month": "Feb",
+      "revenue": 72000,
+      "orders": 195,
+      "customers": 72,
+      "growth": 10.8
+    },
+    {
+      "month": "Mar",
+      "revenue": 68000,
+      "orders": 188,
+      "customers": 68,
+      "growth": -5.6
+    },
+    {
+      "month": "Apr",
+      "revenue": 75000,
+      "orders": 210,
+      "customers": 75,
+      "growth": 10.3
+    },
+    {
+      "month": "May",
+      "revenue": 82000,
+      "orders": 225,
+      "customers": 82,
+      "growth": 9.3
+    },
+    {
+      "month": "Jun",
+      "revenue": 78000,
+      "orders": 215,
+      "customers": 78,
+      "growth": -4.9
+    },
+    {
+      "month": "Jul",
+      "revenue": 85000,
+      "orders": 235,
+      "customers": 85,
+      "growth": 9.0
+    },
+    {
+      "month": "Aug",
+      "revenue": 90000,
+      "orders": 250,
+      "customers": 90,
+      "growth": 5.9
+    },
+    {
+      "month": "Sep",
+      "revenue": 88000,
+      "orders": 245,
+      "customers": 88,
+      "growth": -2.2
+    },
+    {
+      "month": "Oct",
+      "revenue": 95000,
+      "orders": 265,
+      "customers": 95,
+      "growth": 8.0
+    },
+    {
+      "month": "Nov",
+      "revenue": 98000,
+      "orders": 275,
+      "customers": 98,
+      "growth": 3.2
+    },
+    {
+      "month": "Dec",
+      "revenue": 105000,
+      "orders": 290,
+      "customers": 105,
+      "growth": 7.1
+    }
+  ],
+  "quarterly": [
+    {
+      "quarter": "Q1",
+      "revenue": 205000,
+      "orders": 563,
+      "customers": 205,
+      "growth": 8.2
+    },
+    {
+      "quarter": "Q2",
+      "revenue": 235000,
+      "orders": 650,
+      "customers": 235,
+      "growth": 14.6
+    },
+    {
+      "quarter": "Q3",
+      "revenue": 263000,
+      "orders": 730,
+      "customers": 263,
+      "growth": 11.9
+    },
+    {
+      "quarter": "Q4",
+      "revenue": 298000,
+      "orders": 830,
+      "customers": 298,
+      "growth": 13.3
+    }
+  ],
+  "yearly": [
+    {
+      "year": 2022,
+      "revenue": 850000,
+      "orders": 2350,
+      "customers": 850,
+      "growth": 15.2
+    },
+    {
+      "year": 2023,
+      "revenue": 980000,
+      "orders": 2720,
+      "customers": 980,
+      "growth": 15.3
+    },
+    {
+      "year": 2024,
+      "revenue": 1120000,
+      "orders": 3100,
+      "customers": 1120,
+      "growth": 14.3
+    }
+  ],
+  "daily": [
+    {
+      "date": "2024-01-01",
+      "revenue": 3200,
+      "orders": 12,
+      "customers": 8
+    },
+    {
+      "date": "2024-01-02",
+      "revenue": 2800,
+      "orders": 10,
+      "customers": 6
+    },
+    {
+      "date": "2024-01-03",
+      "revenue": 3500,
+      "orders": 14,
+      "customers": 9
+    },
+    {
+      "date": "2024-01-04",
+      "revenue": 4200,
+      "orders": 16,
+      "customers": 11
+    },
+    {
+      "date": "2024-01-05",
+      "revenue": 3800,
+      "orders": 13,
+      "customers": 8
+    },
+    {
+      "date": "2024-01-06",
+      "revenue": 4500,
+      "orders": 18,
+      "customers": 12
+    },
+    {
+      "date": "2024-01-07",
+      "revenue": 5200,
+      "orders": 20,
+      "customers": 14
+    }
+  ],
+  "trends": {
+    "revenueGrowth": 14.3,
+    "orderGrowth": 12.8,
+    "customerGrowth": 15.1,
+    "averageOrderValue": 361.29,
+    "customerLifetimeValue": 1250.00
+  }
+}

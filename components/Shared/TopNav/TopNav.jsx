@@ -10,22 +10,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useAuthProfile, useLogout } from "@/lib/hooks/useAuth";
+import { useFirebaseAuth } from "@/lib/providers/AuthProvider";
+import { firebaseAuthService } from "@/lib/services/firebaseAuthService";
 import { useAppSelector, useAppDispatch } from "@/lib/hooks/redux";
 import { logoutUser, setUser } from "@/lib/store/slices/authSlice";
 import Swal from "sweetalert2";
 
 export default function TopNav() {
+  // Firebase Auth context
+  const { user: firebaseUser, logout: firebaseLogout } = useFirebaseAuth();
+  
   // Redux state and dispatch
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-  // React Query hooks
-  const logoutMutation = useLogout();
-
   // Check if user has token in localStorage (for initial load)
   const [hasToken, setHasToken] = useState(false);
   const [storedUser, setStoredUser] = useState(null);
+  
+  // Determine if user is authenticated (Firebase + Redux + localStorage)
+  const isUserAuthenticated = isAuthenticated || hasToken || !!firebaseUser;
+  const currentUser = user || storedUser || firebaseUser;
 
   // define arrays first before using them in useState
   const languages = [
@@ -76,7 +81,7 @@ export default function TopNav() {
   };
 
   // logout handler
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Swal.fire({
       title: "Logout",
       text: "Are you sure you want to logout?",
@@ -86,40 +91,43 @@ export default function TopNav() {
       cancelButtonColor: "#dc2626",
       confirmButtonText: "Yes, Logout",
       cancelButtonText: "Cancel",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        // using react query mutation
-        logoutMutation.mutate(undefined, {
-          onSuccess: () => {
-            // Clear all stored data
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("userData");
+        try {
+          // Use Firebase logout service
+          await firebaseAuthService.logout();
+          
+          // Clear Redux store
+          dispatch(logoutUser());
+          
+          // Clear all stored data
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("userData");
 
-            // show success message
-            Swal.fire({
-              title: "Logged Out",
-              text: "You have been successfully logged out.",
-              icon: "success",
-              confirmButtonColor: "#38AD81",
-              confirmButtonText: "OK",
-              timer: 2000,
-              timerProgressBar: true,
-            });
-            // redirect to home page
-            window.location.href = "/";
-          },
-          onError: (error) => {
-            console.error("Logout failed:", error);
-            Swal.fire({
-              title: "Logout Failed",
-              text: "Unable to logout. Please try again.",
-              icon: "error",
-              confirmButtonColor: "#dc2626",
-              confirmButtonText: "OK",
-            });
-          },
-        });
+          // show success message
+          Swal.fire({
+            title: "Logged Out",
+            text: "You have been successfully logged out.",
+            icon: "success",
+            confirmButtonColor: "#38AD81",
+            confirmButtonText: "OK",
+            timer: 2000,
+            timerProgressBar: true,
+          });
+          
+          // redirect to home page
+          window.location.href = "/";
+        } catch (error) {
+          console.error("Logout failed:", error);
+          Swal.fire({
+            title: "Logout Failed",
+            text: "Unable to logout. Please try again.",
+            icon: "error",
+            confirmButtonColor: "#dc2626",
+            confirmButtonText: "OK",
+          });
+        }
       }
     });
   };
@@ -165,11 +173,11 @@ export default function TopNav() {
         <div className="flex items-center justify-between py-2 sm:py-3">
           {/* left - auth links or user dropdown */}
           <div className="flex items-center gap-1 text-sm text-gray-600">
-            {isAuthenticated || hasToken ? (
+            {isUserAuthenticated ? (
               // User dropdown when logged in
               <div className="flex items-center gap-2">
                 <p>
-                  Welcome, <span className="font-medium">{user.fullName}</span>
+                  Welcome, <span className="font-medium">{currentUser?.fullName || currentUser?.displayName || 'User'}</span>
                 </p>{" "}
                 |
                 <button

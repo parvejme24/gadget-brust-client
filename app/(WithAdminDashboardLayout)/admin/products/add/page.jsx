@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useCreateProduct } from "@/lib/hooks/useProducts";
 import { useAllBrands } from "@/lib/hooks/useBrands";
 import { useAllCategories } from "@/lib/hooks/useCategories";
+// Removed direct Cloudinary upload - using backend upload instead
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
   DropdownMenuSeparator,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import {
@@ -59,6 +61,9 @@ export default function AddProductPage() {
   const [editingFeatureIndex, setEditingFeatureIndex] = useState(null);
   const [selectedSubcategories, setSelectedSubcategories] = useState([]);
   const [openDropdowns, setOpenDropdowns] = useState({});
+  const [searchTerms, setSearchTerms] = useState({
+    subcategory: '',
+  });
 
   // Required fields based on schema
   const requiredFields = [
@@ -104,12 +109,185 @@ export default function AddProductPage() {
     }
   };
 
-  const handleImageChange = (file) => {
+  const compressImage = (file, maxWidth = 1200, quality = 0.8) => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          console.log('Compressed blob created:', {
+            type: blob.type,
+            size: blob.size,
+            constructor: blob.constructor.name
+          });
+          resolve(blob);
+        }, 'image/jpeg', quality);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleImageChange = async (file) => {
     if (file) {
-      setFormData((prev) => ({ ...prev, image: file }));
-      const reader = new FileReader();
-      reader.onload = (e) => setPreview(e.target.result);
-      reader.readAsDataURL(file);
+      console.log('Original file received:', {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        constructor: file.constructor.name
+      });
+      
+      // Check file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Please select a valid image file (JPEG, PNG, GIF, or WebP)");
+        return;
+      }
+
+      // Check file size (max 5MB before compression)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (file.size > maxSize) {
+        toast.error("Image size must be less than 5MB. Please choose a smaller image.");
+        return;
+      }
+
+      try {
+        // Process file with compression to meet server size limits
+        let processedFile = file;
+        
+        // Compress image if it's larger than 1MB (server limit is likely around 1-2MB)
+        if (file.size > 1024 * 1024) { // 1MB
+          toast.info("Compressing image for upload...");
+          const compressedBlob = await compressImage(file, 800, 0.7); // Smaller size, lower quality
+          const timestamp = Date.now();
+          const newFileName = `image_${timestamp}.jpg`;
+          console.log('Compressing large file:', {
+            originalSize: file.size,
+            compressedSize: compressedBlob.size,
+            newFileName: newFileName
+          });
+          processedFile = new File([compressedBlob], newFileName, {
+            type: 'image/jpeg',
+            lastModified: Date.now()
+          });
+        } else {
+          // For smaller files, just ensure proper filename
+          if (processedFile.name === 'blob' || !processedFile.name || processedFile.name.trim() === '') {
+            const timestamp = Date.now();
+            const extension = processedFile.type.split('/')[1] || 'jpg';
+            const newFileName = `image_${timestamp}.${extension}`;
+            console.log('Renaming blob file to:', newFileName);
+            processedFile = new File([processedFile], newFileName, {
+              type: processedFile.type,
+              lastModified: processedFile.lastModified
+            });
+          }
+        }
+        
+        // Ensure proper MIME type mapping
+        let mimeType = processedFile.type;
+        if (mimeType === 'image/jpg') {
+          mimeType = 'image/jpeg';
+        }
+        
+        // Only recreate the file if MIME type needs to be changed
+        if (mimeType !== processedFile.type) {
+          processedFile = new File([processedFile], processedFile.name, {
+            type: mimeType,
+            lastModified: processedFile.lastModified
+          });
+        }
+
+        setFormData((prev) => ({ ...prev, image: processedFile }));
+        const reader = new FileReader();
+        reader.onload = (e) => setPreview(e.target.result);
+        reader.readAsDataURL(processedFile);
+        
+        // Debug logging
+        console.log('Image file details:', {
+          name: processedFile.name,
+          type: processedFile.type,
+          size: processedFile.size,
+          lastModified: processedFile.lastModified,
+          constructor: processedFile.constructor.name,
+          isFile: processedFile instanceof File,
+          isBlob: processedFile instanceof Blob
+        });
+        
+        // Final validation before setting
+        if (!processedFile.type || !processedFile.type.startsWith('image/')) {
+          console.error('Invalid file type after processing:', processedFile.type);
+          toast.error("Invalid image file type");
+          return;
+        }
+        
+        // Additional validation for file extension
+        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+        const fileExtension = processedFile.name.toLowerCase().substring(processedFile.name.lastIndexOf('.'));
+        if (!allowedExtensions.includes(fileExtension)) {
+          console.error('Invalid file extension:', fileExtension);
+          toast.error("Invalid image file extension");
+          return;
+        }
+        
+        // Final check - ensure filename is not 'blob' and has proper extension
+        if (processedFile.name === 'blob' || !processedFile.name || processedFile.name.trim() === '') {
+          console.error('File still has invalid name after processing:', processedFile.name);
+          toast.error("Invalid file name");
+          return;
+        }
+        
+        // Ensure filename has proper extension
+        const hasValidExtension = /\.(jpg|jpeg|png|gif|webp)$/i.test(processedFile.name);
+        if (!hasValidExtension) {
+          console.error('File does not have valid extension:', processedFile.name);
+          toast.error("Invalid file extension");
+          return;
+        }
+        
+        // Additional validation - ensure file has proper structure
+        if (!(processedFile instanceof File)) {
+          console.error('Processed file is not a File object:', processedFile.constructor.name);
+          toast.error("Invalid file object");
+          return;
+        }
+        
+        // Final size check - ensure file is under server limit
+        const maxServerSize = 2 * 1024 * 1024; // 2MB server limit
+        if (processedFile.size > maxServerSize) {
+          console.error('File still too large after compression:', processedFile.size);
+          toast.error("Image is too large even after compression. Please choose a smaller image.");
+          return;
+        }
+        
+        // Log final file properties for debugging
+        console.log('Final processed file:', {
+          name: processedFile.name,
+          type: processedFile.type,
+          size: processedFile.size,
+          sizeInMB: (processedFile.size / 1024 / 1024).toFixed(2),
+          constructor: processedFile.constructor.name,
+          isFile: processedFile instanceof File,
+          isBlob: processedFile instanceof Blob
+        });
+      } catch (error) {
+        console.error('Image processing error:', error);
+        toast.error("Failed to process image");
+      }
     } else {
       setFormData((prev) => ({ ...prev, image: null }));
       setPreview(null);
@@ -260,32 +438,57 @@ export default function AddProductPage() {
       return;
     }
 
+    // Show loading toast
+    const loadingToast = toast.loading("Creating product...");
+
     try {
+      // Calculate discount price
+      const price = Number(formData.price);
+      const discount = Number(formData.discount) || 0;
+      const discountPrice = discount > 0 ? price - (price * discount) / 100 : undefined;
+
+      // Validate remark against server enum
+      const validRemarks = ["regular", "trending", "popular", "top", "best", "new"];
+      const remark = validRemarks.includes(formData.remark) ? formData.remark : "regular";
+
       const productData = {
         title: formData.title.trim(),
         shortDescription: formData.shortDescription.trim(),
-        price: Number(formData.price),
-        discount: Number(formData.discount) || 0,
+        price: price,
+        discount: discount,
+        discountPrice: discountPrice, // Add calculated discount price
         stock: Number(formData.stock),
-        remark: formData.remark,
+        remark: remark, // Ensure valid remark
         category: formData.category,
         subcategory: formData.subcategory,
         brand: formData.brand,
         keyFeatures: formData.keyFeatures,
-        image: formData.image,
+        image: formData.image, // Send file directly to backend
         isSlider: formData.isSlider,
       };
 
       await createProductMutation.mutateAsync(productData);
+      toast.dismiss(loadingToast);
       toast.success("Product created successfully");
-      router.push("/dashboard/products");
+      router.push("/admin/products");
     } catch (error) {
       console.error("Create product error:", error);
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to create product"
-      );
+      toast.dismiss(loadingToast);
+      
+      // Handle specific error types
+      if (error.code === 'ERR_NETWORK') {
+        toast.error("Network error - please check your connection and try again");
+      } else if (error.response?.status === 413) {
+        toast.error("Image file is too large - please compress the image or choose a smaller file");
+      } else if (error.response?.status === 400) {
+        toast.error(error.response?.data?.message || "Invalid product data - please check all fields");
+      } else {
+        toast.error(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to create product"
+        );
+      }
     }
   };
 
@@ -550,17 +753,37 @@ export default function AddProductPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-full" align="start">
-                  {selectedSubcategories.map((subcategory) => (
-                    <DropdownMenuCheckboxItem
-                      key={subcategory}
-                      checked={formData.subcategory === subcategory}
-                      onCheckedChange={() =>
-                        handleSubcategoryChange(subcategory)
-                      }
-                    >
-                      {subcategory}
-                    </DropdownMenuCheckboxItem>
-                  ))}
+                  <div className="p-2">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search subcategories..."
+                        value={searchTerms.subcategory || ''}
+                        onChange={(e) => setSearchTerms(prev => ({ ...prev, subcategory: e.target.value }))}
+                        className="pl-8 h-8 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <div className="max-h-60 overflow-y-auto">
+                    {selectedSubcategories
+                      ?.filter(subcategory => 
+                        subcategory.toLowerCase().includes((searchTerms.subcategory || '').toLowerCase())
+                      )
+                      ?.map((subcategory) => (
+                        <DropdownMenuCheckboxItem
+                          key={subcategory}
+                          checked={formData.subcategory === subcategory}
+                          onCheckedChange={() => {
+                            handleSubcategoryChange(subcategory);
+                            setSearchTerms(prev => ({ ...prev, subcategory: '' }));
+                          }}
+                        >
+                          {subcategory}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
               {errors.subcategory && (
@@ -596,6 +819,7 @@ export default function AddProductPage() {
             <FileUpload
               onFileChange={handleImageChange}
               preview={preview}
+              file={formData.image}
               accept="image/*"
               disabled={createProductMutation.isPending}
             />

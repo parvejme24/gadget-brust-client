@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "@/lib/providers/ReduxProvider";
 import QueryProvider from "@/lib/providers/QueryProvider";
+import AuthProvider from "@/lib/providers/AuthProvider";
+import LoadingProvider from "@/lib/providers/LoadingProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -16,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Gadget Brust",
-  description: "Gadget Brust",
+  description: "Smart Gadget Store",
 };
 
 export default function RootLayout({ children }) {
@@ -27,8 +29,12 @@ export default function RootLayout({ children }) {
       >
         <ReduxProvider>
           <QueryProvider>
-            {children}
-            <Toaster />
+            <AuthProvider>
+              <LoadingProvider>
+                {children}
+                <Toaster />
+              </LoadingProvider>
+            </AuthProvider>
           </QueryProvider>
         </ReduxProvider>
       </body>
