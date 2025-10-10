@@ -57,10 +57,10 @@ export default function AuthTestPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm">
-            <p><strong>Access Token:</strong> {localStorage.getItem('accessToken') ? 'Present' : 'Not found'}</p>
+            <p><strong>Access Token:</strong> {typeof window !== 'undefined' && localStorage.getItem('accessToken') ? 'Present' : 'Not found'}</p>
             <p><strong>User Data:</strong></p>
             <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto">
-              {localStorage.getItem('userData') || 'No user data found'}
+              {typeof window !== 'undefined' ? (localStorage.getItem('userData') || 'No user data found') : 'Server-side rendering - no localStorage access'}
             </pre>
           </div>
         </CardContent>

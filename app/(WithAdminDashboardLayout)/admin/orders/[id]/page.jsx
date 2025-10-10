@@ -21,7 +21,7 @@ import {
   FileText,
   MessageSquare,
   Download,
-  Print
+  Printer
 } from "lucide-react";
 import Link from "next/link";
 
@@ -158,7 +158,7 @@ export default function OrderDetailPage({ params }) {
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
           <Button variant="outline" className="w-full sm:w-auto">
-            <Print className="h-4 w-4 mr-2" />
+            <Printer className="h-4 w-4 mr-2" />
             Print
           </Button>
           <Button variant="outline" className="w-full sm:w-auto">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -33,7 +33,7 @@ import {
   X,
 } from "lucide-react";
 
-export default function PublicWishlistPage({ customerEmail: propCustomerEmail }) {
+function WishlistContent({ customerEmail: propCustomerEmail }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [removingItem, setRemovingItem] = useState(null);
@@ -558,5 +558,20 @@ export default function PublicWishlistPage({ customerEmail: propCustomerEmail })
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+export default function PublicWishlistPage({ customerEmail: propCustomerEmail }) {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#38AD81] mx-auto mb-4" />
+          <p className="text-gray-600">Loading wishlist...</p>
+        </div>
+      </div>
+    }>
+      <WishlistContent customerEmail={propCustomerEmail} />
+    </Suspense>
   );
 }
