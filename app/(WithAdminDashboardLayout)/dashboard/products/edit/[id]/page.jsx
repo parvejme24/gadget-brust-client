@@ -358,7 +358,7 @@ export default function EditProductPage({ params }) {
       await updateProductMutation.mutateAsync({ productId: resolvedParams.id, productData });
       toast.dismiss(loadingToast);
       toast.success("Product updated successfully");
-      router.push("/admin/products");
+      router.push("/dashboard/products");
     } catch (error) {
       console.error("Update product error:", error);
       console.error("Error details:", {
@@ -403,7 +403,7 @@ export default function EditProductPage({ params }) {
         
         // Redirect to products page after showing error
         setTimeout(() => {
-          router.push("/admin/products");
+          router.push("/dashboard/products");
         }, 2000);
       } else {
         toast.error(
@@ -488,7 +488,7 @@ export default function EditProductPage({ params }) {
           </p>
           <div className="flex gap-3">
             <Button
-              onClick={() => router.push("/admin/products")}
+              onClick={() => router.push("/dashboard/products")}
               className={`${is404Error ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'} text-white`}
             >
               Go to Products
@@ -517,7 +517,7 @@ export default function EditProductPage({ params }) {
                   localStorage.removeItem('products-cache');
                   sessionStorage.clear();
                 }
-                router.push("/admin/products");
+                router.push("/dashboard/products");
               }}
               className="border-green-300 text-green-700 hover:bg-green-50"
             >
@@ -555,7 +555,7 @@ export default function EditProductPage({ params }) {
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
-                onClick={() => router.push("/admin/products")}
+                onClick={() => router.push("/dashboard/products")}
                 className="cursor-pointer"
               >
                 <Eye className="h-4 w-4 mr-2" />

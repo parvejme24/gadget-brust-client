@@ -24,57 +24,57 @@ export default function Sidebar({ isOpen }) {
     {
       name: "Dashboard",
       icon: <MdDashboard className="w-5 h-5" />,
-      href: "/admin/dashboard",
+      href: "/dashboard/dashboard",
     },
     {
       name: "Products",
       icon: <MdInventory className="w-5 h-5" />,
-      href: "/admin/products",
+      href: "/dashboard/products",
     },
     {
       name: "Categories",
       icon: <MdCategory className="w-5 h-5" />,
-      href: "/admin/categories",
+      href: "/dashboard/categories",
     },
     {
       name: "Brands",
       icon: <MdBrandingWatermark className="w-5 h-5" />,
-      href: "/admin/brands",
+      href: "/dashboard/brands",
     },
     {
       name: "Orders",
       icon: <MdShoppingCart className="w-5 h-5" />,
-      href: "/admin/orders",
+      href: "/dashboard/orders",
     },
     {
       name: "Customers",
       icon: <MdPeople className="w-5 h-5" />,
-      href: "/admin/customers",
+      href: "/dashboard/customers",
     },
     {
       name: "Wishlist",
       icon: <MdFavorite className="w-5 h-5" />,
-      href: "/admin/wishlist",
+      href: "/dashboard/wishlist",
     },
     {
       name: "Reports",
       icon: <MdReport className="w-5 h-5" />,
-      href: "/admin/reports",
+      href: "/dashboard/reports",
     },
     {
       name: "Shipping",
       icon: <MdLocalShipping className="w-5 h-5" />,
-      href: "/admin/shipping",
+      href: "/dashboard/shipping",
     },
     {
       name: "Payments",
       icon: <MdPayment className="w-5 h-5" />,
-      href: "/admin/payments",
+      href: "/dashboard/payments",
     },
     {
       name: "Store Settings",
       icon: <MdStore className="w-5 h-5" />,
-      href: "/admin/store-settings",
+      href: "/dashboard/store-settings",
     },
   ];
 

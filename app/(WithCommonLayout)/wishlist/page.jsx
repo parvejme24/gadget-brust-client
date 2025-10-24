@@ -33,7 +33,7 @@ import {
   X,
 } from "lucide-react";
 
-function WishlistContent({ customerEmail: propCustomerEmail }) {
+function WishlistContent({ customerEmail: propCustomerEmail = null }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [removingItem, setRemovingItem] = useState(null);
@@ -561,7 +561,7 @@ function WishlistContent({ customerEmail: propCustomerEmail }) {
   );
 }
 
-export default function PublicWishlistPage({ customerEmail: propCustomerEmail }) {
+export default function PublicWishlistPage({ customerEmail: propCustomerEmail = null }) {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-[400px]">

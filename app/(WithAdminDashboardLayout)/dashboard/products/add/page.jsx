@@ -470,7 +470,7 @@ export default function AddProductPage() {
       await createProductMutation.mutateAsync(productData);
       toast.dismiss(loadingToast);
       toast.success("Product created successfully");
-      router.push("/admin/products");
+      router.push("/dashboard/products");
     } catch (error) {
       console.error("Create product error:", error);
       toast.dismiss(loadingToast);
