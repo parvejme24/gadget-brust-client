@@ -25,6 +25,56 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Storefront brand tokens: bg-brand, text-brand-dark, animate-marquee, etc. */
+@theme {
+  /* eye-comfort palette: no pure white; soft paper surfaces on a calm sage-gray canvas */
+  --color-white: #fafaf7;
+  --color-canvas: #eef0eb;
+  --color-surface: #fafaf7;
+  --color-gray-50: #f3f4ef;
+  --color-gray-100: #e9ebe5;
+  --color-gray-200: #dcdfd7;
+  --color-gray-300: #c6cac0;
+  --color-gray-900: #1c2024;
+  --color-gray-950: #121518;
+
+  --color-brand: #38ad81;
+  --color-brand-dark: #2d8f6a;
+  --color-brand-light: #e8f7f1;
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hero-swiper .swiper-pagination-bullet {
+  background: #fff;
+  opacity: 0.4;
+  width: 8px;
+  height: 8px;
+  transition: all 0.3s;
+}
+.hero-swiper .swiper-pagination-bullet-active {
+  background: #38ad81;
+  opacity: 1;
+  width: 28px;
+  border-radius: 9999px;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -67,36 +117,36 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --background: #eef0eb;
+  --foreground: #1c2024;
+  --card: #fafaf7;
+  --card-foreground: #1c2024;
+  --popover: #fafaf7;
+  --popover-foreground: #1c2024;
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --secondary: #e9ebe5;
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
+  --muted: #e9ebe5;
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: #e9ebe5;
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: #dcdfd7;
+  --input: #dcdfd7;
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: #f3f4ef;
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: #dcdfd7;
   --sidebar-ring: oklch(0.708 0 0);
 }
 
@@ -140,5 +190,216 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Tailwind v4 dropped the pointer cursor on buttons; restore it everywhere it applies */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  a[href],
+  select:not(:disabled),
+  summary,
+  label[for],
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+/* ---------- motion ----------
+   Reveal-on-scroll: elements with .reveal start hidden only when JavaScript runs and the
+   visitor hasn't asked for reduced motion, so content is never lost. Variants via data-reveal. */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .reveal {
+    transition:
+      opacity 0.7s var(--ease-out-expo),
+      transform 0.7s var(--ease-out-expo),
+      filter 0.7s var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal:not(.is-visible) {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  .reveal[data-reveal="down"]:not(.is-visible) {
+    transform: translate3d(0, -24px, 0);
+  }
+  .reveal[data-reveal="left"]:not(.is-visible) {
+    transform: translate3d(-36px, 0, 0);
+  }
+  .reveal[data-reveal="right"]:not(.is-visible) {
+    transform: translate3d(36px, 0, 0);
+  }
+  .reveal[data-reveal="zoom"]:not(.is-visible) {
+    transform: scale(0.94);
+  }
+  .reveal[data-reveal="blur"]:not(.is-visible) {
+    transform: translate3d(0, 12px, 0);
+    filter: blur(8px);
+  }
+  .reveal[data-reveal="fade"]:not(.is-visible) {
+    transform: none;
+  }
+
+  /* route change: the new page eases in */
+  .page-enter {
+    animation: page-enter 0.5s var(--ease-out-expo) backwards;
+  }
+
+  /* little lift on hover for cards that opt in */
+  .hover-lift {
+    transition:
+      transform 0.3s var(--ease-out-expo),
+      box-shadow 0.3s var(--ease-out-expo);
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -18px rgb(28 32 36 / 0.25);
+  }
+
+  .press:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-pop {
+    animation: pop 0.45s var(--ease-spring) backwards;
+  }
+  .animate-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .animate-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+    transform: translateX(-120%);
+    animation: shine 3.2s ease-in-out infinite;
+  }
+  .animate-pulse-ring {
+    animation: pulse-ring 2s ease-out infinite;
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes shine {
+  0%,
+  60% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgb(56 173 129 / 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgb(56 173 129 / 0);
+  }
+}
+
+/* accordion: height animates via grid rows, so no measuring is needed */
+.accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s var(--ease-out-expo);
+}
+.accordion-panel > * {
+  overflow: hidden;
+}
+[data-open="true"] > .accordion-panel {
+  grid-template-rows: 1fr;
+}
+@media (prefers-reduced-motion: reduce) {
+  .accordion-panel {
+    transition: none;
+  }
+}
+
+/* hero slider: the active slide's copy rises in line by line and its image floats */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-swiper .swiper-slide-active .hero-copy > * {
+    animation: page-enter 0.8s var(--ease-out-expo) both;
+  }
+  .hero-swiper .swiper-slide-active .hero-copy > *:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+  .hero-swiper .swiper-slide-active .hero-copy > *:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  .hero-swiper .swiper-slide-active .hero-copy > *:nth-child(4) {
+    animation-delay: 0.24s;
+  }
+  .hero-swiper .swiper-slide-active .hero-copy > *:nth-child(5) {
+    animation-delay: 0.32s;
+  }
+  .hero-swiper .swiper-slide-active .hero-image {
+    animation:
+      pop 0.7s var(--ease-spring) both,
+      float 6s ease-in-out 0.7s infinite;
+  }
+}
+
+/* dashboard stat cards and other grids: rise in one after another */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-rise {
+    animation: page-enter 0.6s var(--ease-out-expo) backwards;
+  }
+  .animate-rise:nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .animate-rise:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .animate-rise:nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .animate-rise:nth-child(n + 5) {
+    animation-delay: 240ms;
   }
 }
