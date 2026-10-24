@@ -66,15 +66,15 @@ export default function AuthShell({ variant = "login", icon: Icon, title, subtit
 export function AuthInput({ label, id, error, trailing, ...props }) {
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-[13px] font-medium text-gray-700">
+      <label htmlFor={id} className="mb-2 block text-sm font-semibold text-gray-800">
         {label}
       </label>
       <div
-        className={`flex h-11 items-center rounded-xl border bg-canvas/60 px-3.5 transition focus-within:bg-surface focus-within:ring-4 ${
-          error ? "border-red-300 focus-within:ring-red-100" : "border-gray-200 focus-within:border-gray-400 focus-within:ring-gray-900/5"
+        className={`flex h-12 items-center rounded-xl border bg-canvas/60 px-4 transition ${
+          error ? "border-red-300" : "border-gray-200 focus-within:border-gray-300 focus-within:bg-surface"
         }`}
       >
-        <input id={id} className="h-full min-w-0 flex-1 bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400" {...props} />
+        <input id={id} className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-gray-900 outline-none placeholder:text-gray-400" {...props} />
         {trailing}
       </div>
       {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
