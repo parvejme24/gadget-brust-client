@@ -6,6 +6,7 @@ import {
   ClipboardPlus,
   CreditCard,
   Heart,
+  Inbox,
   LayoutDashboard,
   MessageSquareText,
   Package,
@@ -70,6 +71,10 @@ export const dashboardNav = [
       { label: "Couriers", href: "/dashboard/couriers", icon: Bike, permission: "couriers" },
       { label: "Shipping", href: "/dashboard/shipping", icon: Truck, permission: "shipping" },
     ],
+  },
+  {
+    group: "Support",
+    items: [{ label: "Messages", href: "/dashboard/messages", icon: Inbox, permission: "dashboard" }],
   },
   {
     group: "Settings",
