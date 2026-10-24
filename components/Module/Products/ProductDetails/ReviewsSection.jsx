@@ -39,8 +39,6 @@ function ReviewForm({ productId, onDone }) {
     try {
       await createReview.mutateAsync({
         productID: productId,
-        customerID: user._id,
-        customerEmail: user.email,
         rating,
         reviewText: text.trim(),
       });
@@ -122,7 +120,7 @@ export default function ReviewsSection({ productId, reviews, avgRating }) {
           </p>
         ) : (
           reviews.map((review) => {
-            const name = review.customerEmail?.split("@")[0] || "Customer";
+            const name = review.customerName || "Customer";
             return (
               <article key={review._id} className="rounded-2xl border border-gray-200/70 bg-surface shadow-sm shadow-gray-900/[0.03] p-5">
                 <div className="flex items-center justify-between gap-3">

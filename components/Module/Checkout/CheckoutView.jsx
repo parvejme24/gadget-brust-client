@@ -9,6 +9,7 @@ import { ShoppingBag } from "lucide-react";
 import { useShopCart } from "@/lib/hooks/useShop";
 import { useShippingMethods } from "@/lib/hooks/useStorefront";
 import { useSession } from "@/lib/hooks/useSession";
+import { useAddresses } from "@/lib/hooks/useAccount";
 import { checkoutService } from "@/lib/services/checkoutService";
 import PageHero from "@/components/Module/Shop/PageHero";
 import CheckoutSection from "./CheckoutSection";
@@ -16,6 +17,7 @@ import ContactFields from "./ContactFields";
 import DeliveryOptions from "./DeliveryOptions";
 import CheckoutField from "./CheckoutField";
 import CheckoutSummary from "./CheckoutSummary";
+import SavedAddresses from "./SavedAddresses";
 
 const CONTACT_KEY = "gbCheckoutContact";
 const BD_PHONE = /^(?:\+?88)?01[3-9]\d{8}$/;
@@ -43,6 +45,9 @@ export default function CheckoutView() {
   const [notes, setNotes] = useState("");
   const [coupon, setCoupon] = useState("");
   const [couponError, setCouponError] = useState("");
+  const isCustomer = user?.role === "user";
+  const { data: addresses = [] } = useAddresses({ enabled: isCustomer });
+  const [saveAddress, setSaveAddress] = useState(true);
 
   // returning guests get their last details back; signed-in customers get their name and email
   useEffect(() => {
@@ -54,6 +59,20 @@ export default function CheckoutView() {
     }
     setContact((c) => ({ ...c, ...saved, ...(user && { name: saved.name || user.fullName || "", email: saved.email || user.email || "" }) }));
   }, [user]);
+
+  // signed-in customers start from their default saved address
+  const [usedDefault, setUsedDefault] = useState(false);
+  useEffect(() => {
+    const preferred = addresses.find((a) => a.isDefault) || addresses[0];
+    if (usedDefault || !preferred) return;
+    setUsedDefault(true);
+    setContact((c) => ({ ...c, name: preferred.name, phone: preferred.phone, street: preferred.street, city: preferred.city, zipCode: preferred.zipCode || "" }));
+  }, [addresses, usedDefault]);
+
+  const pickAddress = (a) => updateContact({ ...contact, name: a.name, phone: a.phone, street: a.street, city: a.city, zipCode: a.zipCode || "" });
+  const isSaved = addresses.some(
+    (a) => a.street.trim().toLowerCase() === contact.street.trim().toLowerCase() && a.city.trim().toLowerCase() === contact.city.trim().toLowerCase()
+  );
 
   const { data: methods = [], isLoading: methodsLoading } = useShippingMethods();
   useEffect(() => {
@@ -114,6 +133,7 @@ export default function CheckoutView() {
       items,
       couponCode: coupon || undefined,
       notes: notes.trim(),
+      saveAddress: isCustomer && !isSaved && saveAddress,
     });
   };
 
@@ -151,7 +171,14 @@ export default function CheckoutView() {
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-8">
           <div className="min-w-0 space-y-6">
             <CheckoutSection step={1} title="Contact & address" description="Where should we deliver?">
+              {isCustomer && <SavedAddresses addresses={addresses} contact={contact} onPick={pickAddress} />}
               <ContactFields value={contact} onChange={updateContact} errors={errors} />
+              {isCustomer && !isSaved && contact.street.trim() && (
+                <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} className="h-4 w-4 rounded border-gray-300" />
+                  Save this address to my account
+                </label>
+              )}
             </CheckoutSection>
             <CheckoutSection step={2} title="Delivery" description="Choose how fast you want it">
               <DeliveryOptions methods={methods} value={shippingMethod} onChange={setShippingMethod} subtotal={cart.subtotal} loading={methodsLoading} />

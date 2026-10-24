@@ -6,6 +6,7 @@ import { ErrorState, PageHeader } from "@/components/Dashboard/Kit";
 import ProfileCard from "@/components/Dashboard/Profile/ProfileCard";
 import ProfileForm from "@/components/Dashboard/Profile/ProfileForm";
 import PasswordForm from "@/components/Dashboard/Profile/PasswordForm";
+import AddressBook from "@/components/Dashboard/Profile/AddressBook";
 
 export default function ProfilePage() {
   const { data: profile, isLoading, isError, error, refetch } = useAdminProfile();
@@ -20,6 +21,7 @@ export default function ProfilePage() {
         <ProfileCard profile={profile} />
         <div className="space-y-6 xl:col-span-2">
           <ProfileForm profile={profile} />
+          {profile.role === "user" && <AddressBook />}
           <PasswordForm />
         </div>
       </div>
