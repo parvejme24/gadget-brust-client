@@ -2,30 +2,44 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { MessageCircle, Send } from "lucide-react";
+import { Loader2, MessageCircle, Send } from "lucide-react";
 import { DropdownSelect } from "@/components/ui/dropdown-select";
 import Reveal from "@/components/Shared/Motion/Reveal";
+import api from "@/lib/api";
 
 const subjects = ["Order & delivery", "Product question", "Warranty & returns", "Corporate / bulk order", "Other"];
 
-// no contact API yet: the message is handed to the visitor's email app, addressed to the store email
 export default function ContactForm({ email }) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: subjects[0], message: "" });
+  const [submitting, setSubmitting] = useState(false);
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.email.trim() || form.message.trim().length < 10) {
-      toast.error("Please add your name, email and a short message.");
+      toast.error("Please add your name, email and a message of at least 10 characters.");
       return;
     }
-    if (!email) {
-      toast.error("Our support email isn't available right now. Please call us instead.");
-      return;
+
+    setSubmitting(true);
+    try {
+      await api.post("/contact", form);
+      toast.success("Message sent successfully!", {
+        description: "Thank you for reaching out. Our support team will reply within one business day.",
+      });
+      setForm({ name: "", email: "", phone: "", subject: subjects[0], message: "" });
+    } catch (err) {
+      // Fallback to mailto if API is temporarily unavailable
+      if (email) {
+        const body = `${form.message}\n\n${form.name}\n${form.email}${form.phone ? `\n${form.phone}` : ""}`;
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(`[${form.subject}] Message from ${form.name}`)}&body=${encodeURIComponent(body)}`;
+        toast.info("Opened your email client to complete sending.");
+      } else {
+        toast.error(err.response?.data?.message || "Failed to send message. Please try again.");
+      }
+    } finally {
+      setSubmitting(false);
     }
-    const body = `${form.message}\n\n${form.name}\n${form.email}${form.phone ? `\n${form.phone}` : ""}`;
-    window.location.href = `mailto:${email}?subject=${encodeURIComponent(`[${form.subject}] Message from ${form.name}`)}&body=${encodeURIComponent(body)}`;
-    toast.success("Opening your email app…", { description: "Send the email to reach our support team." });
   };
 
   return (
@@ -61,8 +75,20 @@ export default function ContactForm({ email }) {
             />
           </div>
         </div>
-        <button type="submit" className="press group mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-gray-900 px-6 font-semibold text-white transition hover:bg-gray-800">
-          Send message <Send className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-1" />
+        <button
+          type="submit"
+          disabled={submitting}
+          className="press group mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-gray-900 px-6 font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {submitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin text-white" /> Sending…
+            </>
+          ) : (
+            <>
+              Send message <Send className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-1" />
+            </>
+          )}
         </button>
       </form>
     </Reveal>
