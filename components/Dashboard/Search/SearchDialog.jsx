@@ -122,10 +122,10 @@ export default function SearchDialog({ user, placeholder, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[90] flex justify-center sm:items-start sm:p-4 sm:pt-[10vh]" onKeyDown={onKeyDown}>
-      <div className="absolute inset-0 hidden bg-gray-950/40 backdrop-blur-[2px] sm:block" onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-label="Search" className="relative flex h-full w-full flex-col bg-surface sm:h-auto sm:max-h-[70vh] sm:max-w-xl sm:rounded-2xl sm:shadow-2xl">
-        <div className="flex items-center gap-2 border-b border-gray-100 px-3 sm:px-4">
-          <button onClick={onClose} aria-label="Close search" className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 sm:hidden">
+      <div className="absolute inset-0 bg-gray-950/50 backdrop-blur-[2px] transition-opacity" onClick={onClose} />
+      <div role="dialog" aria-modal="true" aria-label="Search" className="relative flex h-[100dvh] w-full flex-col bg-surface overflow-hidden pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)] sm:h-auto sm:max-h-[75vh] sm:max-w-xl sm:rounded-2xl sm:shadow-2xl sm:pt-0 sm:pb-0">
+        <div className="flex h-14 items-center gap-2 border-b border-gray-100 px-3 sm:px-4 shrink-0">
+          <button onClick={onClose} aria-label="Close search" className="rounded-xl p-2 text-gray-500 hover:bg-gray-100 sm:hidden">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <Search className="hidden h-5 w-5 shrink-0 text-gray-400 sm:block" />
@@ -138,7 +138,7 @@ export default function SearchDialog({ user, placeholder, onClose }) {
             role="combobox"
             aria-expanded="true"
             aria-autocomplete="list"
-            className="h-14 min-w-0 flex-1 bg-transparent text-[15px] text-gray-900 outline-none placeholder:text-gray-400"
+            className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-gray-900 outline-none placeholder:text-gray-400"
           />
           {isFetching && searching && <Loader2 className="h-4 w-4 shrink-0 animate-spin text-gray-400" />}
           {query && (
@@ -149,7 +149,7 @@ export default function SearchDialog({ user, placeholder, onClose }) {
           <kbd className="hidden rounded-md border border-gray-200 bg-gray-50 px-1.5 py-0.5 text-[11px] font-medium text-gray-500 sm:inline">Esc</kbd>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-2" role="listbox">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-2" role="listbox">
           {term.length === 1 && <p className="px-3 py-6 text-center text-sm text-gray-500">Keep typing…</p>}
           {groups.map((group) => (
             <div key={group.key} className="mb-2 last:mb-0">
@@ -177,10 +177,16 @@ export default function SearchDialog({ user, placeholder, onClose }) {
           )}
         </div>
 
-        <div className="hidden items-center gap-4 border-t border-gray-100 px-4 py-2.5 text-[11px] text-gray-400 sm:flex">
-          <span><kbd className="font-sans">↑↓</kbd> to move</span>
-          <span><kbd className="font-sans">↵</kbd> to open</span>
-          <span><kbd className="font-sans">Esc</kbd> to close</span>
+        <div className="flex items-center justify-between border-t border-gray-100 px-4 py-2.5 text-[11px] text-gray-400">
+          <div className="hidden items-center gap-4 sm:flex">
+            <span><kbd className="font-sans">↑↓</kbd> to move</span>
+            <span><kbd className="font-sans">↵</kbd> to open</span>
+            <span><kbd className="font-sans">Esc</kbd> to close</span>
+          </div>
+          <span className="sm:hidden">{flat.length} items available</span>
+          <button onClick={onClose} className="rounded px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100 sm:hidden">
+            Close
+          </button>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ExternalLink, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
+import { ExternalLink, PanelLeftClose, PanelLeftOpen, Search, X } from "lucide-react";
 import logo from "@/assets/logo.svg";
 import { navForRole } from "./navConfig";
 import { cx } from "@/lib/format";
@@ -116,6 +116,18 @@ export default function AdminSidebar({ role, collapsed, onToggleCollapse, mobile
             </Link>
             <button onClick={onCloseMobile} aria-label="Close menu" className="rounded-lg p-2 text-gray-500 hover:bg-gray-100">
               <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="border-b border-gray-200/70 p-3">
+            <button
+              onClick={() => {
+                onCloseMobile();
+                window.dispatchEvent(new CustomEvent("open-global-search"));
+              }}
+              className="flex w-full items-center gap-2.5 rounded-xl border border-gray-200 bg-canvas/70 px-3 py-2 text-left text-sm text-gray-500 hover:border-gray-300 hover:bg-canvas transition"
+            >
+              <Search className="h-4 w-4 shrink-0 text-gray-400" />
+              <span className="flex-1 truncate">Search dashboard…</span>
             </button>
           </div>
           {nav(false)}
