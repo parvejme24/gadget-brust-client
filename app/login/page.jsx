@@ -75,6 +75,11 @@ function LoginForm() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           trailing={<PasswordToggle shown={showPassword} onToggle={() => setShowPassword((s) => !s)} />}
         />
+        <div className="-mt-1 text-right">
+          <Link href={`/forgot-password${form.email ? `?email=${encodeURIComponent(form.email)}` : ""}`} className="text-xs font-semibold text-gray-600 underline-offset-4 hover:text-gray-900 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
 
         {error && <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700" role="alert">{error}</p>}
 
