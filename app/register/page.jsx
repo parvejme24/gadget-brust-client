@@ -1,331 +1,120 @@
 "use client";
-import React, { useState } from "react";
-import Image from "next/image";
+
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
-import gadgetsImage from "@/assets/gadgets.svg";
-import { useFirebaseAuth } from "@/lib/providers/AuthProvider";
-import { firebaseAuthService } from "@/lib/services/firebaseAuthService";
+import { toast } from "sonner";
+import { Loader2, UserPlus } from "lucide-react";
 import { useAppDispatch } from "@/lib/hooks/redux";
-import { setUser } from "@/lib/store/slices/authSlice";
-import SuccessMessage from "@/components/ui/success-message";
-import Swal from "sweetalert2";
+import { signUp } from "@/lib/services/session";
+import AuthShell, { AuthInput, PasswordToggle } from "@/components/Module/Auth/AuthShell";
+
+const scorePassword = (p) => [p.length >= 6, /\d/.test(p), /[a-z]/.test(p) && /[A-Z]/.test(p), p.length >= 10].filter(Boolean).length;
+const strength = [
+  { label: "", bar: "bg-gray-200" },
+  { label: "Weak", bar: "bg-red-400" },
+  { label: "Fair", bar: "bg-amber-400" },
+  { label: "Good", bar: "bg-emerald-400" },
+  { label: "Strong", bar: "bg-emerald-600" },
+];
 
 export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { registerWithEmail } = useFirebaseAuth();
-
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const [agree, setAgree] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const score = scorePassword(form.password);
+  const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
+
+  const validate = () => {
+    const next = {};
+    if (form.fullName.trim().length < 2) next.fullName = "Please enter your full name.";
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) next.email = "Please enter a valid email address.";
+    if (form.password.length < 6) next.password = "Use at least 6 characters.";
+    if (!agree) next.agree = "Please accept the terms to continue.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    if (!validate()) return;
     setLoading(true);
-
     try {
-      const response = await firebaseAuthService.registerWithEmail(
-        formData.email, 
-        formData.password, 
-        formData.fullName
-      );
-      console.log("Registration successful:", response);
-
-      // Store user data and tokens in localStorage
-      const { user, token, refreshToken } = response;
-      
-      // Store tokens
-      if (token) {
-        localStorage.setItem('accessToken', token);
-      }
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
-      }
-      
-      // Store user data
-      if (user) {
-        localStorage.setItem('userData', JSON.stringify(user));
-        // dispatch user data to Redux store
-        dispatch(setUser(user));
-      }
-
-      // show sweet alert success message
-      Swal.fire({
-        title: "Account Created!",
-        text: "Welcome to Gadget Brust! Your account has been created successfully.",
-        icon: "success",
-        confirmButtonColor: "#38AD81",
-        confirmButtonText: "Continue to Home",
-        timer: 4000,
-        timerProgressBar: true,
-        showConfirmButton: true,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-      }).then((result) => {
-        if (
-          result.isConfirmed ||
-          result.dismiss === Swal.DismissReason.timer
-        ) {
-          router.push("/");
-        }
-      });
-    } catch (error) {
-      console.error("Registration failed:", error);
-
-      // show sweet alert error message
-      Swal.fire({
-        title: "Registration Failed",
-        text: error.message || "Unable to create account. Please try again.",
-        icon: "error",
-        confirmButtonColor: "#dc2626",
-        confirmButtonText: "Try Again",
-        showConfirmButton: true,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignUp = async () => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      const response = await firebaseAuthService.loginWithGoogle();
-      console.log("Google signup successful:", response);
-
-      // Store user data and tokens in localStorage
-      const { user, token, refreshToken } = response;
-      
-      // Store tokens
-      if (token) {
-        localStorage.setItem('accessToken', token);
-      }
-      if (refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
-      }
-      
-      // Store user data
-      if (user) {
-        localStorage.setItem('userData', JSON.stringify(user));
-        // dispatch user data to Redux store
-        dispatch(setUser(user));
-      }
-
-      // show sweet alert success message
-      Swal.fire({
-        title: "Account Created!",
-        text: "Welcome to Gadget Brust! Your account has been created with Google.",
-        icon: "success",
-        confirmButtonColor: "#38AD81",
-        confirmButtonText: "Continue to Home",
-        timer: 4000,
-        timerProgressBar: true,
-        showConfirmButton: true,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-      }).then((result) => {
-        if (
-          result.isConfirmed ||
-          result.dismiss === Swal.DismissReason.timer
-        ) {
-          router.push("/");
-        }
-      });
-    } catch (error) {
-      console.error("Google signup failed:", error);
-
-      // show sweet alert error message
-      Swal.fire({
-        title: "Google Sign Up Failed",
-        text: error.message || "Unable to create account with Google. Please try again.",
-        icon: "error",
-        confirmButtonColor: "#dc2626",
-        confirmButtonText: "Try Again",
-        showConfirmButton: true,
-      });
+      const { user } = await signUp(dispatch, form);
+      toast.success(`Welcome to Gadget Brust, ${user?.fullName?.split(" ")[0] || "friend"}!`);
+      router.push("/");
+    } catch (err) {
+      setErrors({ form: (typeof err === "string" ? err : err?.message) || "Registration failed. Please try again." });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 min-h-screen grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 items-center">
-        {/* Left Column - Form */}
-        <div className="space-y-6 p-4 sm:p-6 lg:p-10 w-full max-w-md lg:max-w-[100%] mx-auto lg:mx-0">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#4AB58D]">
-              Create Account
-            </h1>
-            <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-              Join us and start exploring amazing gadgets
-            </p>
-          </div>
-
-          {/* Google Sign Up Button */}
-          <Button
-            onClick={handleGoogleSignUp}
-            variant="outline"
-            className="w-full cursor-pointer bg-white border-gray-300 text-gray-700 hover:bg-gray-50 h-10 text-sm sm:text-base"
-          >
-            <FaGoogle className="mr-2 text-red-500" />
-            Sign up with Google
-          </Button>
-
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500 text-xs sm:text-sm">
-                or continue with email
-              </span>
-            </div>
-          </div>
-
-          {/* Success Message */}
-          {success && (
-            <SuccessMessage message={success} onClose={() => setSuccess("")} />
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600 text-center">{error}</p>
-            </div>
-          )}
-
-          {/* Registration Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="fullName"
-                className="text-sm font-medium text-gray-700"
-              >
-                Full Name
-              </label>
-              <Input
-                type="text"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                placeholder="Enter your full name"
-                required
-                className="w-full py-3 sm:py-4 lg:py-5 text-sm sm:text-base"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-gray-700"
-              >
-                Email Address
-              </label>
-              <Input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="Enter your email"
-                required
-                className="w-full py-3 sm:py-4 lg:py-5 text-sm sm:text-base"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Create a password"
-                  required
-                  minLength={6}
-                  className="w-full py-3 sm:py-4 lg:py-5 pr-12 text-sm sm:text-base"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? (
-                    <FaEyeSlash size={16} className="sm:w-4 sm:h-4" />
-                  ) : (
-                    <FaEye size={16} className="sm:w-4 sm:h-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full cursor-pointer bg-[#38AD81] hover:bg-[#38AD81]/90 text-white font-medium h-10 text-sm sm:text-base disabled:opacity-50"
-            >
-              {loading ? "Creating Account..." : "Sign up"}
-            </Button>
-          </form>
-
-          {/* Login Link */}
-          <div className="text-center">
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Already have an account?{" "}
-              <Link
-                href="/login"
-                className="text-[#38AD81] hover:text-[#38AD81]/80 font-medium"
-              >
-                Sign in here
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        {/* Right Column - Image */}
-        <div className="hidden lg:flex justify-center items-center p-4">
-          <Image
-            src={gadgetsImage}
-            alt="Gadgets and technology illustration"
-            className="w-full h-auto mt-14"
-            priority
+    <AuthShell
+      variant="register"
+      icon={UserPlus}
+      title="Create your account"
+      subtitle="It's free and takes less than a minute."
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link href="/login" className="font-semibold text-gray-900 underline-offset-4 hover:underline">
+            Sign in
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <AuthInput id="fullName" label="Full name" autoComplete="name" placeholder="Your name" value={form.fullName} onChange={update("fullName")} error={errors.fullName} />
+        <AuthInput id="email" label="Email" type="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={update("email")} error={errors.email} />
+        <div>
+          <AuthInput
+            id="password"
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="new-password"
+            placeholder="At least 6 characters"
+            value={form.password}
+            onChange={update("password")}
+            error={errors.password}
+            trailing={<PasswordToggle shown={showPassword} onToggle={() => setShowPassword((s) => !s)} />}
           />
+          {form.password && (
+            <div className="mt-2 flex items-center gap-3">
+              <div className="flex flex-1 gap-1">
+                {[1, 2, 3, 4].map((level) => (
+                  <span key={level} className={`h-1 flex-1 rounded-full transition ${score >= level ? strength[score].bar : "bg-gray-200"}`} />
+                ))}
+              </div>
+              <span className="w-12 text-right text-xs font-medium text-gray-500">{strength[score].label}</span>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+
+        <div>
+          <label htmlFor="agree" className="flex items-start gap-2.5 text-[13px] text-gray-600">
+            <input id="agree" type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 accent-gray-900" />
+            <span>I agree to the terms of service and privacy policy.</span>
+          </label>
+          {errors.agree && <p className="mt-1.5 text-xs text-red-600">{errors.agree}</p>}
+        </div>
+
+        {errors.form && <p className="rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700" role="alert">{errors.form}</p>}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
+        >
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create account"}
+        </button>
+      </form>
+    </AuthShell>
   );
 }

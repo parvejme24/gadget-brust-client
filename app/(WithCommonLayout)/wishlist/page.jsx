@@ -1,577 +1,122 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useWishlistByEmail, useClearWishlist, useRemoveFromWishlist } from "@/lib/hooks/useWishlist";
-import { useAuthProfile } from "@/lib/hooks/useAuth";
-import {
-  Loader2,
-  Search,
-  Heart,
-  Trash2,
-  ShoppingCart,
-  AlertTriangle,
-  Package,
-  Eye,
-  Calendar,
-  X,
-} from "lucide-react";
+import { toast } from "sonner";
+import { Heart, Package, ShoppingCart, Trash2, X } from "lucide-react";
+import { useShopCart, useShopWishlist } from "@/lib/hooks/useShop";
+import { formatTaka } from "@/lib/format";
+import PageHero from "@/components/Module/Shop/PageHero";
+import ProductSuggestions from "@/components/Module/Shop/ProductSuggestions";
+import Reveal, { stagger } from "@/components/Shared/Motion/Reveal";
 
-function WishlistContent({ customerEmail: propCustomerEmail = null }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showClearDialog, setShowClearDialog] = useState(false);
-  const [removingItem, setRemovingItem] = useState(null);
-  
-  // Get URL search params
-  const searchParams = useSearchParams();
-  const urlEmail = searchParams.get('email');
-  
-  // Get current user from auth
-  const { data: userProfile, isLoading: authLoading } = useAuthProfile();
-  
-  // Get customer email from props, URL, auth profile, or localStorage
-  const getCustomerEmail = () => {
-    if (propCustomerEmail) return propCustomerEmail;
-    if (urlEmail) return urlEmail;
-    if (userProfile?.data?.email) return userProfile.data.email;
-    
-    // Fallback to localStorage
-    try {
-      const userData = localStorage.getItem('userData');
-      if (userData) {
-        const parsed = JSON.parse(userData);
-        return parsed.email;
-      }
-    } catch (error) {
-      console.error('Error parsing userData from localStorage:', error);
-    }
-    
-    return null;
+export default function WishlistPage() {
+  const wishlist = useShopWishlist();
+  const cart = useShopCart();
+  const inStockItems = wishlist.items.filter((item) => item.stock > 0);
+
+  const moveToCart = (item) => {
+    cart.add(item, 1, { openDrawer: false });
+    wishlist.remove(item._id);
   };
-  
-  const customerEmail = getCustomerEmail();
-  const [showEmailInput, setShowEmailInput] = useState(!customerEmail);
 
-  // Debug logging
-  console.log('PublicWishlistPage rendered with:', {
-    propCustomerEmail,
-    urlEmail,
-    customerEmail,
-    userProfile: userProfile?.data,
-    authLoading,
-    timestamp: new Date().toISOString()
-  });
+  const addAllToCart = () => {
+    inStockItems.forEach((item) => cart.add(item, 1, { openDrawer: false, silent: true }));
+    toast.success(`${inStockItems.length} item${inStockItems.length > 1 ? "s" : ""} added to cart`);
+    cart.open();
+  };
 
-  // If no customer email is provided, show email input form
-  if (!customerEmail) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center max-w-md mx-auto">
-            <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {authLoading ? 'Loading...' : 'Access Your Wishlist'}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {authLoading 
-                ? 'Please wait while we load your profile...' 
-                : 'Please log in to view your wishlist or enter your email address below.'
-              }
-            </p>
-            
-            {!authLoading && (
-              <div className="space-y-4">
-                <div>
-                  <Input
-                    type="email"
-                    placeholder="Enter your email address"
-                    value={customerEmail || ''}
-                    onChange={(e) => {
-                      // This will trigger a re-render with the new email
-                      const newEmail = e.target.value;
-                      if (newEmail) {
-                        // Force re-render by updating state
-                        window.location.href = `/wishlist?email=${encodeURIComponent(newEmail)}`;
-                      }
-                    }}
-                    className="text-center"
-                  />
-                </div>
-                
-                <Button
-                  onClick={() => {
-                    const emailInput = document.querySelector('input[type="email"]');
-                    const email = emailInput?.value;
-                    if (email) {
-                      window.location.href = `/wishlist?email=${encodeURIComponent(email)}`;
-                    }
-                  }}
-                  disabled={!customerEmail}
-                  className="w-full bg-[#38AD81] hover:bg-[#2d8f6a] text-white"
-                >
-                  <Heart className="h-4 w-4 mr-2" />
-                  View My Wishlist
-                </Button>
-              </div>
+  if (!cart.hydrated) {
+    return <div className="min-h-[60vh]" />;
+  }
+
+  return (
+    <div className="pb-16">
+      <PageHero
+        title="My Wishlist"
+        subtitle={wishlist.count ? `${wishlist.count} saved item${wishlist.count > 1 ? "s" : ""}. Saved on this device, no account needed.` : "Save products you love and come back to them anytime."}
+        crumbs={[{ label: "Wishlist" }]}
+      >
+        {wishlist.count > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {inStockItems.length > 0 && (
+              <button onClick={addAllToCart} className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-dark">
+                <ShoppingCart className="h-4 w-4" /> Add all to cart
+              </button>
             )}
+            <button
+              onClick={() => {
+                wishlist.clear();
+                toast("Wishlist cleared");
+              }}
+              className="inline-flex items-center gap-2 rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-red-300 hover:text-red-600"
+            >
+              <Trash2 className="h-4 w-4" /> Clear all
+            </button>
           </div>
-        </div>
-      </div>
-    );
-  }
+        )}
+      </PageHero>
 
-  const {
-    data: wishlistData,
-    isLoading,
-    error,
-  } = useWishlistByEmail(customerEmail);
-  const clearWishlistMutation = useClearWishlist();
-  const removeFromWishlistMutation = useRemoveFromWishlist();
-
-  const wishlistItems = wishlistData?.data || [];
-
-  // Debug logging to understand the data structure
-  React.useEffect(() => {
-    if (wishlistData) {
-      console.log('Wishlist Data:', wishlistData);
-      console.log('Wishlist Items:', wishlistItems);
-      if (wishlistItems.length > 0) {
-        console.log('First Item:', wishlistItems[0]);
-        console.log('First Item Product:', wishlistItems[0]?.productID);
-      }
-    }
-  }, [wishlistData, wishlistItems]);
-
-  // Filter wishlist items based on search
-  const filteredWishlist = wishlistItems.filter((item) => {
-    const product = item.productID || item.product;
-    const matchesSearch =
-      product?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product?.shortDescription?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    return matchesSearch;
-  });
-
-  const handleClearWishlist = () => {
-    // Find customer ID from wishlist data
-    const customerItem = wishlistItems.find(item => item.customerEmail === customerEmail);
-    if (customerItem?.customerID) {
-      clearWishlistMutation.mutate(customerItem.customerID, {
-        onSuccess: () => {
-          setShowClearDialog(false);
-        },
-        onError: () => {
-          setShowClearDialog(false);
-        }
-      });
-    }
-  };
-
-  const handleRemoveItem = (wishlistId) => {
-    removeFromWishlistMutation.mutate(wishlistId, {
-      onSuccess: () => {
-        setRemovingItem(null);
-      },
-      onError: () => {
-        setRemovingItem(null);
-      }
-    });
-  };
-
-  const formatPrice = (price) => {
-    if (!price || isNaN(price)) return '$0.00';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#38AD81] mx-auto mb-4" />
-          <p className="text-gray-600">Loading your wishlist...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 mb-4">Failed to load wishlist</p>
-          <Button onClick={() => window.location.reload()}>Try Again</Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
-          <p className="text-gray-600 mt-1">
-            Your saved products ({wishlistItems.length} items)
-          </p>
-          <p className="text-sm text-gray-500 mt-1">
-            Viewing wishlist for: <span className="font-medium">{customerEmail}</span>
-            {userProfile?.data?.fullName && (
-              <span className="ml-2">({userProfile.data.fullName})</span>
-            )}
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCustomerEmail("")}
-            className="text-gray-600"
-          >
-            <X className="h-4 w-4 mr-1" />
-            Change Email
-          </Button>
-          
-          {wishlistItems.length > 0 && (
-            <Button
-              variant="outline"
-              onClick={() => setShowClearDialog(true)}
-              className="text-red-600 border-red-200 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Clear All
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Search */}
-      {wishlistItems.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5" />
-              Search Your Wishlist
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search products in your wishlist..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+      <div className="container mx-auto max-w-7xl px-4 pt-8 sm:px-6 lg:px-8">
+        {wishlist.count === 0 ? (
+          <div className="flex flex-col items-center rounded-3xl border border-dashed border-gray-200 bg-gray-50/60 px-6 py-16 text-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-red-50">
+              <Heart className="h-11 w-11 text-red-400" />
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <h2 className="mt-6 text-2xl font-bold text-gray-900">Your wishlist is empty</h2>
+            <p className="mt-2 max-w-sm text-gray-500">Tap the heart on any product to save it here for later.</p>
+            <Link href="/products" className="mt-6 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white hover:bg-brand-dark">
+              Explore products
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            {wishlist.items.map((item, i) => {
+              const outOfStock = item.stock === 0;
+              return (
+                <Reveal variant="zoom" delay={stagger(i, 60)} key={item._id} className="group relative flex flex-col rounded-2xl border border-gray-100 bg-white p-3 transition hover:border-brand/30 hover:shadow-xl hover:shadow-brand/10">
+                  <button
+                    onClick={() => wishlist.remove(item._id)}
+                    aria-label={`Remove ${item.title} from wishlist`}
+                    className="absolute right-5 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-500 shadow-sm ring-1 ring-gray-100 hover:text-red-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  <Link href={`/products/${item._id}`} className="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-gray-50">
+                    {item.image ? (
+                      <img src={item.image} alt={item.title} className="h-full w-full object-contain p-5 transition-transform duration-500 group-hover:scale-110" />
+                    ) : (
+                      <Package className="h-10 w-10 text-gray-300" />
+                    )}
+                    {item.discount > 0 && (
+                      <span className="absolute left-2 top-2 rounded-full bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white">-{item.discount}%</span>
+                    )}
+                  </Link>
+                  <div className="flex flex-1 flex-col pt-3">
+                    {item.brandName && <p className="text-xs text-gray-500">{item.brandName}</p>}
+                    <Link href={`/products/${item._id}`} className="mt-1 line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-gray-900 hover:text-brand">
+                      {item.title}
+                    </Link>
+                    <p className="mt-2 text-lg font-bold text-gray-900">
+                      {formatTaka(item.finalPrice)}
+                      {item.finalPrice < item.price && <span className="ml-2 text-xs font-normal text-gray-400 line-through">{formatTaka(item.price)}</span>}
+                    </p>
+                    <p className={`text-xs font-medium ${outOfStock ? "text-red-600" : "text-brand-dark"}`}>{outOfStock ? "Out of stock" : "In stock"}</p>
+                    <button
+                      onClick={() => moveToCart(item)}
+                      disabled={outOfStock}
+                      className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 text-sm font-semibold text-white transition hover:bg-brand disabled:bg-gray-100 disabled:text-gray-400"
+                    >
+                      <ShoppingCart className="h-4 w-4" /> Move to cart
+                    </button>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        )}
 
-      {/* Wishlist Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Heart className="h-5 w-5" />
-            Wishlist Items ({filteredWishlist.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredWishlist.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Product</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Price</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Stock</th>
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Added Date</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-900">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredWishlist.map((item) => {
-                    const product = item.productID || item.product;
-                    if (!product) return null;
-
-                    const finalPrice = product.finalPrice || 
-                      (product.discount > 0 ? 
-                        product.price - (product.price * product.discount / 100) : 
-                        product.price);
-
-                    return (
-                      <tr key={item._id} className="border-b border-gray-100 hover:bg-gray-50">
-                        {/* Product Info */}
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                              {product.image?.url ? (
-                                <Image
-                                  src={product.image.url}
-                                  alt={product.title || 'Product'}
-                                  fill
-                                  className="object-cover"
-                                  sizes="64px"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Package className="h-6 w-6 text-gray-400" />
-                                </div>
-                              )}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <Link 
-                                href={`/products/${product._id}`}
-                                className="font-medium text-gray-900 hover:text-[#38AD81] transition-colors duration-200 line-clamp-2"
-                              >
-                                {product.title || 'Untitled Product'}
-                              </Link>
-                              {product.shortDescription && (
-                                <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-                                  {product.shortDescription}
-                                </p>
-                              )}
-                              <div className="flex items-center gap-2 mt-2">
-                                {product.category && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {product.category.name || product.category.categoryName}
-                                  </Badge>
-                                )}
-                                {product.brand && (
-                                  <Badge variant="outline" className="text-xs">
-                                    {product.brand.name || product.brand.brandName}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Price */}
-                        <td className="py-4 px-4">
-                          <div className="flex flex-col">
-                            <span className="font-semibold text-[#38AD81]">
-                              {formatPrice(finalPrice)}
-                            </span>
-                            {product.discount > 0 && (
-                              <span className="text-sm text-gray-500 line-through">
-                                {formatPrice(product.price)}
-                              </span>
-                            )}
-                            {product.discount > 0 && (
-                              <Badge className="bg-red-500 text-white text-xs w-fit mt-1">
-                                -{product.discount}% OFF
-                              </Badge>
-                            )}
-                          </div>
-                        </td>
-
-                        {/* Stock */}
-                        <td className="py-4 px-4">
-                          <Badge 
-                            className={
-                              (product.stock || 0) > 0 
-                                ? 'bg-green-500 text-white' 
-                                : 'bg-red-500 text-white'
-                            }
-                          >
-                            {(product.stock || 0) > 0 ? 'In Stock' : 'Out of Stock'}
-                          </Badge>
-                        </td>
-
-                        {/* Added Date */}
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Calendar className="h-4 w-4" />
-                            {formatDate(item.createdAt)}
-                          </div>
-                        </td>
-
-                        {/* Actions */}
-                        <td className="py-4 px-4">
-                          <div className="flex items-center justify-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="hover:bg-[#38AD81] hover:text-white hover:border-[#38AD81] transition-colors duration-200"
-                              asChild
-                            >
-                              <Link href={`/products/${product._id}`}>
-                                <Eye className="h-4 w-4" />
-                              </Link>
-                            </Button>
-                            
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors duration-200"
-                              disabled={(product.stock || 0) === 0}
-                            >
-                              <ShoppingCart className="h-4 w-4" />
-                            </Button>
-                            
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setRemovingItem(item._id)}
-                              disabled={removeFromWishlistMutation.isPending}
-                              className="hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors duration-200"
-                            >
-                              {removingItem === item._id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : wishlistItems.length === 0 ? (
-            <div className="text-center py-12">
-              <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Your wishlist is empty
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Start adding products to your wishlist to see them here.
-              </p>
-              <Button
-                onClick={() => window.location.href = '/products'}
-                className="bg-[#38AD81] hover:bg-[#2d8f6a] text-white"
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Browse Products
-              </Button>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No products found
-              </h3>
-              <p className="text-gray-600">
-                Try adjusting your search criteria.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Remove Item Confirmation Dialog */}
-      <AlertDialog open={!!removingItem} onOpenChange={() => setRemovingItem(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Remove from Wishlist</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to remove this product from your wishlist? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => handleRemoveItem(removingItem)}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={removeFromWishlistMutation.isPending}
-            >
-              {removeFromWishlistMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Removing...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Remove
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Clear Wishlist Confirmation Dialog */}
-      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Clear Your Wishlist</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to clear your entire wishlist? This action
-              cannot be undone and will remove all {wishlistItems.length} items
-              from your wishlist.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleClearWishlist}
-              className="bg-red-600 hover:bg-red-700"
-              disabled={clearWishlistMutation.isPending}
-            >
-              {clearWishlistMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Clearing...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Clear Wishlist
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <ProductSuggestions excludeIds={wishlist.items.map((i) => i._id)} />
+      </div>
     </div>
-  );
-}
-
-export default function PublicWishlistPage({ customerEmail: propCustomerEmail = null }) {
-  return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#38AD81] mx-auto mb-4" />
-          <p className="text-gray-600">Loading wishlist...</p>
-        </div>
-      </div>
-    }>
-      <WishlistContent customerEmail={propCustomerEmail} />
-    </Suspense>
   );
 }

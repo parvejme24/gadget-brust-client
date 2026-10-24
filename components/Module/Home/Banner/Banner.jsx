@@ -1,150 +1,163 @@
 "use client";
-// Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-// Import Swiper styles
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Autoplay } from "swiper/modules";
+import Link from "next/link";
+import { ArrowRight, Zap } from "lucide-react";
+import { useAllCategories, useDiscountedProducts, useSliderProducts } from "@/lib/hooks/useStorefront";
+import { getCategoryIcon } from "@/lib/categoryIcons";
+import Reveal from "@/components/Shared/Motion/Reveal";
+import { formatTaka, getFinalPrice } from "@/lib/format";
+
 import "swiper/css";
 import "swiper/css/pagination";
 
-// import required modules
-import { Pagination, Autoplay, Navigation } from "swiper/modules";
-import Link from "next/link";
-
-const bannerData = [
-  {
-    id: 1,
-    title: "MacBook Air M1 New",
-    short_des:
-      "Apple MacBook Air 13.3-Inch Retina Display 8-core Apple M1 chip with 8GB RAM, 256GB SSD (MGND3) Gold",
-    price: "50% off in all products",
-    image:
-      "https://ecommerce-api.codesilicon.com/images/s15ab2733cb4567d3d.png",
-    product_id: 1,
-    created_at: "2023-08-15T12:42:46.000000Z",
-    updated_at: "2024-10-02T17:18:49.000000Z",
-  },
-  {
-    id: 3,
-    title: "MacBook Air M1 New",
-    short_des:
-      "Apple MacBook Air 13.3-Inch Retina Display 8-core Apple M1 chip with 8GB RAM, 256GB SSD (MGND3) Gold",
-    price: "51% off in all products",
-    image:
-      "https://ecommerce-api.codesilicon.com/images/s29b413a4aec6bec14.png",
-    product_id: 2,
-    created_at: "2023-08-15T12:42:46.000000Z",
-    updated_at: "2024-10-02T17:19:54.000000Z",
-  },
-  {
-    id: 4,
-    title: "MacBook Air M1 New",
-    short_des:
-      "Apple MacBook Air 13.3-Inch Retina Display 8-core Apple M1 chip with 8GB RAM, 256GB SSD (MGND3) Gold",
-    price: "52% off in all products",
-    image:
-      "https://ecommerce-api.codesilicon.com/images/s36372954997b5719f.png",
-    product_id: 3,
-    created_at: "2023-08-15T12:42:46.000000Z",
-    updated_at: "2024-10-02T17:19:01.000000Z",
-  },
+const tileStyles = [
+  { className: "from-amber-100 to-orange-200", iconClass: "text-orange-500/70" },
+  { className: "from-sky-100 to-indigo-200", iconClass: "text-indigo-500/70" },
 ];
 
 export default function Banner() {
+  const { data, isLoading } = useSliderProducts();
+  const { data: discounted, isLoading: discountedLoading } = useDiscountedProducts();
+  const { data: categoriesData } = useAllCategories();
+  // products the admin put in the slider, otherwise the best current deals
+  const sliderProducts = data?.data?.length ? data.data : (discounted?.data || []).slice(0, 5);
+  const loading = isLoading || (!data?.data?.length && discountedLoading);
+  // the two biggest categories become the side tiles
+  const sideTiles = [...(categoriesData?.data || [])]
+    .sort((a, b) => (b.subcategories?.length || 0) - (a.subcategories?.length || 0))
+    .slice(0, 2)
+    .map((c, i) => ({
+      title: c.categoryName,
+      subtitle: c.subcategories?.length ? `${c.subcategories.length} types to explore` : "Shop the range",
+      href: `/products?category=${c._id}`,
+      icon: getCategoryIcon(c.categoryName),
+      ...tileStyles[i],
+    }));
+
   return (
-    <div className="relative">
-      {/* Swiper Slider */}
-      <Swiper
-        modules={[Pagination, Autoplay, Navigation]}
-        spaceBetween={0}
-        slidesPerView={1}
-        pagination={{
-          clickable: true,
-          dynamicBullets: true,
-        }}
-        autoplay={{
-          delay: 5000,
-          disableOnInteraction: false,
-        }}
-        loop={true}
-        navigation={{
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
-        }}
-        className="h-[500px] sm:h-[600px] md:h-[700px]"
-      >
-        {bannerData.map((item) => (
-          <SwiperSlide key={item.id}>
-            <div
-              className="relative w-full h-full bg-cover bg-center bg-no-repeat"
-              style={{
-                backgroundImage: `url(${item.image})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }}
-            >
-              {/* overlay for better text readability */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
+    <section className="pt-4 sm:pt-6 pb-6">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {/* main slider */}
+          <Reveal variant="zoom" className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-900 to-emerald-950 lg:col-span-2">
+            <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-brand/30 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
 
-              {/* content container */}
-              <div className="relative z-10 h-full flex items-center">
-                <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                  <div className="flex flex-col h-full justify-center">
-                    {/* Content - Left aligned */}
-                    <div className="text-left max-w-2xl">
-                      {/* discount badge */}
-                      <div className="inline-block bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                        {item.price}
-                      </div>
-
-                      {/* title */}
-                      <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                        {item.title}
-                      </h1>
-
-                      {/* description */}
-                      <p className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed">
-                        {item.short_des}
-                      </p>
-
-                      {/* call to action buttons */}
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <Link
-                          href={`/product/${item.product_id}`}
-                          className="inline-block bg-[#38AD81] hover:bg-[#38AD81]/90 text-white font-semibold px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-lg"
-                        >
-                          Shop Now
-                        </Link>
-                        <Link
-                          href={`/product/${item.product_id}`}
-                          className="inline-block bg-transparent border-2 border-white text-white font-semibold px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105 hover:bg-white hover:text-gray-900 text-lg"
-                        >
-                          Learn More
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {loading ? (
+              <div className="h-[500px] sm:h-[420px] lg:h-[460px] animate-pulse" />
+            ) : sliderProducts.length === 0 ? (
+              <div className="relative flex h-[500px] flex-col items-center justify-center px-6 text-center sm:h-[420px] lg:h-[460px]">
+                <h1 className="text-3xl font-extrabold text-white sm:text-5xl">Smart gadgets, genuine warranty</h1>
+                <Link href="/products" className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white">
+                  Browse products <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+            ) : (
+              <Swiper
+                modules={[Pagination, Autoplay]}
+                speed={700}
+                slidesPerView={1}
+                loop={sliderProducts.length > 1}
+                autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+                pagination={{ clickable: true }}
+                className="hero-swiper h-[500px] sm:h-[420px] lg:h-[460px]"
+              >
+                {sliderProducts.map((item) => {
+                  const href = `/products/${item._id}`;
+                  const price = item.price ? getFinalPrice(item) : null;
+                  return (
+                    <SwiperSlide key={item._id}>
+                      <div className="relative grid h-full grid-cols-1 items-center gap-4 px-6 pb-14 pt-6 sm:grid-cols-2 sm:px-10 sm:py-10">
+                        <div className="hero-copy relative z-10 order-2 text-center sm:order-1 sm:text-left">
+                          {item.discount > 0 && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-brand/15 px-3 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-brand/40">
+                              <Zap className="h-3.5 w-3.5" />
+                              Save {item.discount}% today
+                            </span>
+                          )}
+                          <h1 className="mt-3 line-clamp-2 text-2xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
+                            {item.title}
+                          </h1>
+                          {item.shortDescription && (
+                            <p className="mt-3 line-clamp-2 text-sm text-gray-300 sm:text-base">
+                              {item.shortDescription}
+                            </p>
+                          )}
+                          {price !== null && (
+                            <p className="mt-4 text-2xl font-bold text-white">
+                              {formatTaka(price)}
+                              {price < item.price && (
+                                <span className="ml-2 text-base font-normal text-gray-400 line-through">
+                                  {formatTaka(item.price)}
+                                </span>
+                              )}
+                            </p>
+                          )}
+                          <div className="mt-5 flex justify-center gap-3 sm:justify-start">
+                            <Link
+                              href={href}
+                              className="group inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand/30 transition hover:bg-brand-dark"
+                            >
+                              Shop Now
+                              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </Link>
+                            <Link
+                              href="/products"
+                              className="inline-flex rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                            >
+                              Explore
+                            </Link>
+                          </div>
+                        </div>
 
-      {/* Custom Navigation Buttons */}
-      <button className="swiper-button-prev absolute left-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-110">
-        <FaChevronLeft className="text-xl" />
-      </button>
+                        <div className="relative order-1 flex h-44 items-center justify-center sm:order-2 sm:h-full">
+                          <div className="absolute h-36 w-36 rounded-full bg-brand/20 blur-2xl sm:h-64 sm:w-64" />
+                          {item.image?.url && (
+                            <img
+                              src={item.image.url}
+                              alt={item.title}
+                              className="hero-image relative max-h-full w-auto object-contain drop-shadow-2xl sm:max-h-[320px]"
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+            )}
+          </Reveal>
 
-      <button className="swiper-button-next absolute right-4 top-1/2 transform -translate-y-1/2 z-20 w-12 h-12 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-110">
-        <FaChevronRight className="text-xl" />
-      </button>
-
-      {/* Custom Pagination */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="swiper-pagination"></div>
+          {/* side promo tiles */}
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+            {sideTiles.map(({ title, subtitle, href, icon: Icon, className, iconClass }, i) => (
+              <Reveal key={title} variant="right" delay={150 + i * 120} className="h-full">
+                <Link
+                  href={href}
+                  className={`hover-lift group relative flex h-full min-h-[150px] overflow-hidden rounded-3xl bg-gradient-to-br p-5 sm:p-6 ${className}`}
+                >
+                  <div className="relative z-10 flex flex-col">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                      {subtitle}
+                    </span>
+                    <h3 className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{title}</h3>
+                    <span className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-semibold text-gray-900">
+                      Shop now
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </div>
+                  <Icon
+                    strokeWidth={1.25}
+                    className={`absolute -bottom-4 -right-4 h-28 w-28 transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110 sm:h-36 sm:w-36 ${iconClass}`}
+                  />
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

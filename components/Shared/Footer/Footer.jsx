@@ -1,188 +1,157 @@
-import React from "react";
-import logo from "@/assets/logo.svg";
-import paymentSystem from "@/assets/payment-system.svg";
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { FaFacebookF, FaYoutube, FaInstagram } from "react-icons/fa";
-import { FaRegEnvelope } from "react-icons/fa6";
-import { FiMapPin, FiPhoneCall } from "react-icons/fi";
+import { Clock, Headset, Mail, MapPin, Phone, RotateCcw, ShieldCheck, Truck } from "lucide-react";
+import logo from "@/assets/logo.svg";
+import paymentSystem from "@/assets/payment-system.svg";
+import { useStoreInfo } from "@/lib/hooks/useStorefront";
+import Reveal, { stagger } from "@/components/Shared/Motion/Reveal";
 
-// reusable section heading component
-const SectionHeading = ({ children, className = "" }) => (
-  <h3 className={`text-lg font-semibold text-gray-800 border-b-2 border-[#38AD81] pb-2 inline-block ${className}`}>
-    {children}
-  </h3>
-);
+const linkGroups = [
+  {
+    title: "Shop",
+    links: [
+      { label: "All products", href: "/products" },
+      { label: "Hot deals", href: "/products?sort=discount" },
+      { label: "New arrivals", href: "/products?sort=newest" },
+      { label: "Top rated", href: "/products?sort=rating" },
+      { label: "Categories", href: "/categories" },
+      { label: "Brands", href: "/brands" },
+    ],
+  },
+  {
+    title: "Customer care",
+    links: [
+      { label: "Contact us", href: "/contact" },
+      { label: "My account", href: "/dashboard/dashboard" },
+      { label: "Track your order", href: "/track-order" },
+      { label: "Wishlist", href: "/wishlist" },
+      { label: "Shopping cart", href: "/cart" },
+      { label: "Sign in", href: "/login" },
+    ],
+  },
+];
 
-// reusable social media links component
-const SocialMediaLinks = ({ className = "", showLabels = true }) => {
-  const socialLinks = [
-    { name: "Facebook", href: "/facebook", icon: FaFacebookF, color: "hover:bg-blue-600" },
-    { name: "YouTube", href: "/youtube", icon: FaYoutube, color: "hover:bg-red-600" },
-    { name: "Instagram", href: "/instagram", icon: FaInstagram, color: "hover:bg-pink-600" }
-  ];
+const perks = [
+  { icon: Truck, title: "Nationwide delivery", text: "1-5 days across Bangladesh" },
+  { icon: ShieldCheck, title: "Official warranty", text: "100% genuine products" },
+  { icon: RotateCcw, title: "7-day returns", text: "Hassle-free replacement" },
+  { icon: Headset, title: "Expert support", text: "Friendly help before and after you buy" },
+];
 
-  return (
-    <div className={className}>
-      {showLabels && (
-        <p className="text-sm font-medium text-gray-700 mb-3">
-          Follow us on social media
-        </p>
-      )}
-      <ul className="flex gap-3">
-        {socialLinks.map((social) => {
-          const Icon = social.icon;
-          return (
-            <li key={social.name}>
-              <Link
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`inline-flex items-center justify-center w-10 h-10 bg-white hover:bg-[#38AD81] text-gray-600 hover:text-white rounded-full transition-all duration-300 shadow-sm hover:shadow-md ${social.color}`}
-                aria-label={social.name}
-              >
-                <Icon size={16} />
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
-
-// reusable navigation links component
-const NavigationLinks = ({ links = [], className = "" }) => (
-  <ul className={`space-y-3 ${className}`}>
-    {links.map((link, index) => (
-      <li key={index}>
-        <Link
-          href={link.href}
-          className="text-gray-600 hover:text-[#38AD81] hover:underline transition-colors duration-300 text-sm block py-1"
-        >
-          {link.label}
-        </Link>
-      </li>
-    ))}
-  </ul>
-);
-
-// reusable contact info component
-const ContactInfo = ({ className = "" }) => (
-  <ul className={`space-y-4 ${className}`}>
-    <li className="flex items-start gap-3">
-      <FiMapPin
-        className="text-[#38AD81] mt-1 flex-shrink-0"
-        size={16}
-      />
-      <span className="text-gray-600 text-sm leading-relaxed">
-        11/A, Bonifant Street, Suite 459 NY, New York City, United
-        States
-      </span>
-    </li>
-    <li className="flex items-center gap-3">
-      <FiPhoneCall
-        className="text-[#38AD81] flex-shrink-0"
-        size={16}
-      />
-      <Link
-        href="tel:01234567890"
-        className="text-gray-600 hover:text-[#38AD81] transition-colors duration-300 text-sm"
-      >
-        +1 (012) 345-6789
-      </Link>
-    </li>
-    <li className="flex items-center gap-3">
-      <FaRegEnvelope
-        className="text-[#38AD81] flex-shrink-0"
-        size={16}
-      />
-      <Link
-        href="mailto:info@gadgetbrust.com"
-        className="text-gray-600 hover:text-[#38AD81] transition-colors duration-300 text-sm"
-      >
-        info@gadgetbrust.com
-      </Link>
-    </li>
-  </ul>
-);
+const socialIcons = [
+  { key: "facebook", label: "Facebook", icon: FaFacebookF },
+  { key: "instagram", label: "Instagram", icon: FaInstagram },
+  { key: "youtube", label: "YouTube", icon: FaYoutube },
+];
 
 export default function Footer() {
-  // data for navigation links
-  const customerServiceLinks = [
-    { href: "/track-order", label: "Track Your Order" },
-    { href: "/customer-service", label: "Customer Service" },
-    { href: "/terms", label: "Terms of Use" },
-    { href: "/affiliate", label: "Affiliate Program" },
-    { href: "/help-support", label: "Help & Support" }
-  ];
-
-  const productLinks = [
-    { href: "/laptops-computers", label: "Laptops & Computers" },
-    { href: "/audio-video", label: "Audio & Video" },
-    { href: "/smartphones-tablets", label: "Smartphones & Tablets" },
-    { href: "/office-supplies", label: "Office Supplies" },
-    { href: "/cameras", label: "Cameras" }
-  ];
-
+  const store = useStoreInfo();
+  // only the social links set in store settings
+  const socials = socialIcons.filter((s) => store.socials[s.key]).map((s) => ({ ...s, href: store.socials[s.key] }));
   return (
-    <footer className="text-gray-800">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        {/* main footer content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          
-          {/* company info section - spans 2 columns on medium screens */}
-          <div className="md:col-span-2 space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <Image
-                  src={logo}
-                  alt="Gadget Brust Logo"
-                  className="h-14 w-auto"
-                />
+    <footer className="mt-auto bg-gray-950 text-gray-400">
+      {/* perks */}
+      <div className="border-b border-white/10">
+        <div className="container mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-8 sm:px-6 lg:grid-cols-4 lg:px-8">
+          {perks.map(({ icon: Icon, title, text }, i) => (
+            <Reveal variant="up" delay={stagger(i, 80)} key={title} className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand/15 text-brand">
+                <Icon className="h-5 w-5" />
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed max-w-md">
-                Your one-stop destination for amazing gadgets and cutting-edge
-                technology. Quality products, exceptional service.
-              </p>
-            </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white">{title}</p>
+                <p className="truncate text-xs">{text}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
 
-            {/* social media links */}
-            <SocialMediaLinks />
-          </div>
-
-          {/* customer service section */}
-          <div className="space-y-4">
-            <SectionHeading>Customer Service</SectionHeading>
-            <NavigationLinks links={customerServiceLinks} />
-          </div>
-
-          {/* products section */}
-          <div className="space-y-4">
-            <SectionHeading>Our Products</SectionHeading>
-            <NavigationLinks links={productLinks} />
-          </div>
-
-          {/* contact information section */}
-          <div className="space-y-4">
-            <SectionHeading>Contact Us</SectionHeading>
-            <ContactInfo />
+      <div className="container mx-auto grid max-w-7xl grid-cols-2 gap-10 px-4 py-12 sm:px-6 lg:grid-cols-12 lg:px-8">
+        <div className="col-span-2 lg:col-span-4">
+          <Link href="/" className="inline-block rounded-xl bg-white px-3 py-2">
+            <Image src={logo} alt={store.name} className="h-9 w-auto" />
+          </Link>
+          <p className="mt-4 max-w-sm text-sm leading-6">
+            {store.tagline} Phones, laptops, audio, gaming and smart accessories from the brands you trust.
+          </p>
+          <div className="mt-5 flex gap-2">
+            {socials.map(({ label, href, icon: Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-gray-300 transition hover:bg-brand hover:text-white"
+              >
+                <Icon size={15} />
+              </a>
+            ))}
           </div>
         </div>
 
-        {/* bottom footer */}
-        <div className="border-t border-gray-300 mt-12 pt-8">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-sm text-center sm:text-left">
-              © {new Date().getFullYear()} Gadget Brust. All rights reserved.
-            </p>
-            <div className="flex items-center">
-              <Image
-                src={paymentSystem}
-                alt="Payment methods accepted"
-                className="h-8 w-auto"
-              />
-            </div>
+        {linkGroups.map((group) => (
+          <div key={group.title} className="lg:col-span-2">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">{group.title}</h3>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {group.links.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="transition hover:text-brand">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        <div className="col-span-2 lg:col-span-4">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-white">Get in touch</h3>
+          <ul className="mt-4 space-y-3 text-sm">
+            {store.address && (
+              <li className="flex gap-3">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                {store.address}
+              </li>
+            )}
+            {store.phone && (
+              <li>
+                <a href={store.phoneHref} className="flex gap-3 transition hover:text-brand">
+                  <Phone className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                  {store.phone}
+                </a>
+              </li>
+            )}
+            {store.email && (
+              <li>
+                <a href={`mailto:${store.email}`} className="flex gap-3 transition hover:text-brand">
+                  <Mail className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                  {store.email}
+                </a>
+              </li>
+            )}
+            {store.hours && (
+              <li className="flex gap-3">
+                <Clock className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                {store.hours}
+              </li>
+            )}
+          </ul>
+        </div>
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs sm:flex-row sm:px-6 lg:px-8">
+          <p>© {new Date().getFullYear()} {store.name}. All rights reserved.</p>
+          <div className="flex items-center gap-3">
+            <span>We accept</span>
+            <span className="rounded-lg bg-white px-3 py-1.5">
+              <Image src={paymentSystem} alt="Accepted payment methods" className="h-5 w-auto" />
+            </span>
           </div>
         </div>
       </div>

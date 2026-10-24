@@ -1,18 +1,12 @@
 import React from "react";
-import Navbar from "@/components/Shared/Navbar/Navbar";
+import Header from "@/components/Shared/Header/Header";
 import Footer from "@/components/Shared/Footer/Footer";
-import TopNav from "@/components/Shared/TopNav/TopNav";
-import NavItemsBar from "@/components/Shared/NavItemsBar/NavItemsBar";
 
 export default function Layout({ children }) {
   return (
-    <div>
-      <TopNav />
-      <div className="sticky top-0 z-50">
-        <Navbar />
-        <NavItemsBar />
-      </div>
-      {children}
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      <main className="flex-1">{children}</main>
       <Footer />
     </div>
   );
